@@ -27,7 +27,7 @@ export function buildDeeplinkUrl(path: string, params?: DeeplinkParams): string 
   const url = new URL(APP_CONFIG.urlScheme + path);
   
   if (params) {
-    Object.entries(params).forEach(([key, value]: [string, string | undefined]) => {
+    Object.entries(params).forEach(([key, value]: [string, string | boolean | undefined]) => {
       if (value !== undefined && value !== null) {
         url.searchParams.set(key, String(value));
       }
