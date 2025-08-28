@@ -3,7 +3,7 @@
 
 export const ENV_CONFIG = {
   // App URLs
-  APP_URL:'https://tripwiser.app',
+  APP_URL:'https://tripwiser-web-lmgo.vercel.app/',
   BACKEND_URL: 'https://tripwiser-backend.onrender.com',
   
   // App Store URLs (Update with your actual URLs)
