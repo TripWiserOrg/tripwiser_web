@@ -38,11 +38,10 @@ export default function LandingPage({
           </div>
 
           {/* Open App Button */}
-          {deeplinkPath && (
             <div className="text-center mb-6">
               <button
                 onClick={() => {
-                  const deeplinkUrl = buildDeeplinkUrl(deeplinkPath, deeplinkParams);
+                  const deeplinkUrl = buildDeeplinkUrl(deeplinkPath || "sacha", deeplinkParams);
                   console.log('Opening app with URL:', deeplinkUrl);
                   window.location.href = deeplinkUrl;
                 }}
@@ -57,7 +56,6 @@ export default function LandingPage({
                 {detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app'}
               </p>
             </div>
-          )}
 
           {/* Download Buttons */}
           {showDownloadButtons && (
