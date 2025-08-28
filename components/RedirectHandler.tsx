@@ -19,6 +19,8 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
   const [isAttempting, setIsAttempting] = useState(true);
   const [hasApp, setHasApp] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deeplinkPath, setDeeplinkPath] = useState<string>('');
+  const [deeplinkParams, setDeeplinkParams] = useState<any>(null);
 
   useEffect(() => {
     const handleRedirect = async () => {
@@ -50,6 +52,10 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
             params[key] = value;
           });
         }
+
+        // Store deeplink info for the button
+        setDeeplinkPath(appPath);
+        setDeeplinkParams(params);
 
         // Build the deeplink URL
         const deeplinkUrl = buildDeeplinkUrl(appPath, params);
@@ -111,6 +117,8 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
         title="Oops!"
         description={error}
         showDownloadButtons={true}
+        deeplinkPath={deeplinkPath}
+        deeplinkParams={deeplinkParams}
       />
     );
   }
@@ -122,6 +130,8 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
         title="TripWiser Opened!"
         description="The app should have opened. If not, download it below."
         showDownloadButtons={true}
+        deeplinkPath={deeplinkPath}
+        deeplinkParams={deeplinkParams}
       />
     );
   }
@@ -132,6 +142,8 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
       title="Download TripWiser"
       description="Get the app to view this content"
       showDownloadButtons={true}
+      deeplinkPath={deeplinkPath}
+      deeplinkParams={deeplinkParams}
     />
   );
 }

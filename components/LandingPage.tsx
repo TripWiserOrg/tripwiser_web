@@ -1,16 +1,20 @@
 import React from 'react';
-import { APP_CONFIG } from '../utils/deeplink';
+import { APP_CONFIG, buildDeeplinkUrl, detectPlatform } from '../utils/deeplink';
 
 interface LandingPageProps {
   title?: string;
   description?: string;
   showDownloadButtons?: boolean;
+  deeplinkPath?: string;
+  deeplinkParams?: any;
 }
 
 export default function LandingPage({ 
   title = "TripWiser", 
   description = "Your personal travel companion",
-  showDownloadButtons = true 
+  showDownloadButtons = true,
+  deeplinkPath,
+  deeplinkParams
 }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -32,6 +36,28 @@ export default function LandingPage({
             <div className="spinner mx-auto mb-4"></div>
             <p className="text-gray-600 animate-pulse">Opening TripWiser...</p>
           </div>
+
+          {/* Open App Button */}
+          {deeplinkPath && (
+            <div className="text-center mb-6">
+              <button
+                onClick={() => {
+                  const deeplinkUrl = buildDeeplinkUrl(deeplinkPath, deeplinkParams);
+                  console.log('Opening app with URL:', deeplinkUrl);
+                  window.location.href = deeplinkUrl;
+                }}
+                className="btn btn-primary btn-lg mb-4"
+              >
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Open in TripWiser App
+              </button>
+              <p className="text-sm text-gray-500">
+                {detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app'}
+              </p>
+            </div>
+          )}
 
           {/* Download Buttons */}
           {showDownloadButtons && (
