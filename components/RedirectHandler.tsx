@@ -71,24 +71,16 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
           return;
         }
 
-        // On mobile, attempt to open the app
-        const appOpened = await attemptAppOpen(deeplinkUrl);
+        // On mobile, try to open the app immediately
+        console.log('RedirectHandler: Attempting to open app with URL:', deeplinkUrl);
+        window.location.href = deeplinkUrl;
         
-        if (appOpened) {
-          setHasApp(true);
-          // The app opened successfully, we can redirect to store after a delay
-          setTimeout(() => {
-            window.location.href = getStoreUrl();
-          }, 3000);
-        } else {
+        // Set a timeout to show the landing page if app doesn't open
+        setTimeout(() => {
+          console.log('RedirectHandler: App open timeout, showing landing page');
           setHasApp(false);
-          // App didn't open, redirect to store after a delay
-          setTimeout(() => {
-            window.location.href = getStoreUrl();
-          }, 2000);
-        }
-        
-        setIsAttempting(false);
+          setIsAttempting(false);
+        }, 1500);
       } catch (err) {
         console.error('Redirect error:', err);
         setError('Failed to open app');

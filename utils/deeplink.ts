@@ -79,42 +79,12 @@ export function attemptAppOpen(deeplinkUrl: string): Promise<boolean> {
       return;
     }
 
-    // Create a hidden iframe to attempt opening the app
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = deeplinkUrl;
+    // Simple approach: just redirect to the deeplink URL
+    // The browser will handle opening the app or showing an error
+    window.location.href = deeplinkUrl;
     
-    let hasOpened = false;
-    
-    // Set a timeout to detect if the app opened
-    const timeout = setTimeout(() => {
-      if (!hasOpened) {
-        document.body.removeChild(iframe);
-        resolve(false);
-      }
-    }, 2000);
-    
-    // Listen for page visibility change (indicates app opened)
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        hasOpened = true;
-        clearTimeout(timeout);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        resolve(true);
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Add iframe to page to trigger the deeplink
-    document.body.appendChild(iframe);
-    
-    // Remove iframe after a short delay
-    setTimeout(() => {
-      if (document.body.contains(iframe)) {
-        document.body.removeChild(iframe);
-      }
-    }, 100);
+    // Assume it worked (the page will either open the app or stay on the page)
+    resolve(true);
   });
 }
 
