@@ -7,8 +7,9 @@ export interface DeeplinkParams {
   postId?: string;
   templateId?: string;
   tipId?: string;
-  viewOnly?: boolean;
+  viewOnly?: string | boolean;
   type?: string;
+  [key: string]: string | boolean | undefined;
 }
 
 import { ENV_CONFIG } from '../config/environment';

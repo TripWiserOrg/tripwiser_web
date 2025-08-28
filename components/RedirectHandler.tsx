@@ -43,7 +43,7 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
         const params: DeeplinkParams = { ...parsed.params };
         if (searchParams) {
           searchParams.forEach((value, key) => {
-            params[key as keyof DeeplinkParams] = value;
+            params[key] = value;
           });
         }
 
