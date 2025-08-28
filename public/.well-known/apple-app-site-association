@@ -1,0 +1,21 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "MT98B5253F.com.tripwiser.app",
+        "paths": [
+          "/trip/*",
+          "/packing/*",
+          "/journal/*",
+          "/itinerary/*",
+          "/profile/*",
+          "/discover/post/*",
+          "/template/*",
+          "/tip/*",
+          "/create*"
+        ]
+      }
+    ]
+  }
+}

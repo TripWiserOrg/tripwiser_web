@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.tripwiser.android.app",
+      "sha256_cert_fingerprints": [
+        "1E:DA:B6:30:02:60:0E:3C:23:CC:44:46:17:0B:FC:B1:14:E1:AC:8A:A3:E0:36:ED:0C:91:65:51:60:66:BA:88"
+      ]
+    }
+  }
+]
