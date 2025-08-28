@@ -1,29 +1,25 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/.well-known/apple-app-site-association",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    },
-    {
-      "src": "/.well-known/assetlinks.json",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    }
-  ],
   "headers": [
     {
-      "source": "/.well-known/(.*)",
+      "source": "/.well-known/apple-app-site-association",
       "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
         {
           "key": "Cache-Control",
           "value": "public, max-age=3600"
@@ -32,4 +28,3 @@
     }
   ]
 }
-
