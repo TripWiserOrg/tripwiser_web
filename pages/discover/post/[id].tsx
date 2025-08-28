@@ -36,6 +36,8 @@ export default function DiscoverPostPage({ postId }: DiscoverPostPageProps) {
   );
 }
 
+console.log('postId');
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.params as { id: string };
 
