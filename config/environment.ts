@@ -8,7 +8,7 @@ export const ENV_CONFIG = {
   
   // App Store URLs (Update with your actual URLs)
   ANDROID_STORE_URL: 'https://play.google.com/store/apps/details?id=com.tripwiser.android.app',
-  IOS_STORE_URL: 'https://apps.apple.com/app/tripwiser/id1234567890',
+  IOS_STORE_URL: 'https://apps.apple.com/app/tripwiser/MT98B5253F', // Replace with your actual App Store ID
   
   // App Configuration
   ANDROID_PACKAGE: 'com.tripwiser.android.app',

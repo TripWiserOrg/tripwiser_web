@@ -23,8 +23,12 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
   useEffect(() => {
     const handleRedirect = async () => {
       try {
+        console.log('RedirectHandler: Starting redirect for pathname:', pathname);
+        
         // Parse the URL path
         const parsed = parseUrlPath(pathname);
+        console.log('RedirectHandler: Parsed URL:', parsed);
+        
         if (!parsed) {
           setError('Invalid URL');
           setIsAttempting(false);
@@ -49,9 +53,11 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
 
         // Build the deeplink URL
         const deeplinkUrl = buildDeeplinkUrl(appPath, params);
+        console.log('RedirectHandler: Built deeplink URL:', deeplinkUrl);
 
         // Attempt to open the app
         const platform = detectPlatform();
+        console.log('RedirectHandler: Detected platform:', platform);
         
         if (platform === 'desktop') {
           // On desktop, show the landing page immediately

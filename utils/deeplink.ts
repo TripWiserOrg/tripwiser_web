@@ -25,8 +25,10 @@ export const APP_CONFIG = {
 
 export function buildDeeplinkUrl(path: string, params?: DeeplinkParams): string {
   const url = new URL(APP_CONFIG.urlScheme + path);
+  console.log('buildDeeplinkUrl: Base URL:', APP_CONFIG.urlScheme + path);
   
   if (params) {
+    console.log('buildDeeplinkUrl: Adding params:', params);
     Object.entries(params).forEach(([key, value]: [string, string | boolean | undefined]) => {
       if (value !== undefined && value !== null) {
         url.searchParams.set(key, String(value));
@@ -34,7 +36,9 @@ export function buildDeeplinkUrl(path: string, params?: DeeplinkParams): string 
     });
   }
   
-  return url.toString();
+  const finalUrl = url.toString();
+  console.log('buildDeeplinkUrl: Final URL:', finalUrl);
+  return finalUrl;
 }
 
 export function detectPlatform(): 'ios' | 'android' | 'desktop' {
@@ -58,12 +62,16 @@ export function getStoreUrl(): string {
 
 export function attemptAppOpen(deeplinkUrl: string): Promise<boolean> {
   return new Promise((resolve) => {
+    console.log('attemptAppOpen: Starting with URL:', deeplinkUrl);
+    
     if (typeof window === 'undefined') {
+      console.log('attemptAppOpen: No window object, resolving false');
       resolve(false);
       return;
     }
 
     const platform = detectPlatform();
+    console.log('attemptAppOpen: Platform detected:', platform);
     
     // For desktop, we can't detect if the app opens, so we'll assume it doesn't
     if (platform === 'desktop') {
