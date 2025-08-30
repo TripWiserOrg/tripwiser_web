@@ -11,14 +11,14 @@ interface ItineraryPageProps {
 
 export default function ItineraryPage({ tripId, viewOnly, itineraryId }: ItineraryPageProps) {
   const pathname = `/itinerary/${tripId}`;
-  const searchParams = new URLSearchParams();
+  const searchParams: Record<string, string> = {};
   
   if (viewOnly) {
-    searchParams.set('viewOnly', viewOnly);
+    searchParams.viewOnly = viewOnly as string;
   }
   
   if (itineraryId) {
-    searchParams.set('itineraryId', itineraryId);
+    searchParams.itineraryId = itineraryId as string;
   }
 
   return (

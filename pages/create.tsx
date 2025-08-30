@@ -9,10 +9,10 @@ interface CreatePageProps {
 
 export default function CreatePage({ type }: CreatePageProps) {
   const pathname = '/create';
-  const searchParams = new URLSearchParams();
+  const searchParams: Record<string, string> = {};
   
   if (type) {
-    searchParams.set('type', type);
+    searchParams.type = type as string;
   }
 
   return (

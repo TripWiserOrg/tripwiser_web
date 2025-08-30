@@ -9,6 +9,7 @@ interface DiscoverPostPageProps {
 
 export default function DiscoverPostPage({ postId }: DiscoverPostPageProps) {
   const pathname = `/discover/post/${postId}`;
+  const searchParams: Record<string, string> = {};
 
   return (
     <>
@@ -31,7 +32,7 @@ export default function DiscoverPostPage({ postId }: DiscoverPostPageProps) {
         <meta property="twitter:image" content="https://tripwiser.app/og-image.png" />
       </Head>
       
-      <RedirectHandler pathname={pathname} />
+      <RedirectHandler pathname={pathname} searchParams={searchParams} />
     </>
   );
 }

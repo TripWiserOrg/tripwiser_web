@@ -9,6 +9,7 @@ interface TemplatePageProps {
 
 export default function TemplatePage({ templateId }: TemplatePageProps) {
   const pathname = `/template/${templateId}`;
+  const searchParams: Record<string, string> = {};
 
   return (
     <>
@@ -31,7 +32,7 @@ export default function TemplatePage({ templateId }: TemplatePageProps) {
         <meta property="twitter:image" content="https://tripwiser.app/og-image.png" />
       </Head>
       
-      <RedirectHandler pathname={pathname} />
+      <RedirectHandler pathname={pathname} searchParams={searchParams} />
     </>
   );
 }

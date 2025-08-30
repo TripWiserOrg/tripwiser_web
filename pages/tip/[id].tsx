@@ -10,10 +10,10 @@ interface TipPageProps {
 
 export default function TipPage({ tipId, viewOnly }: TipPageProps) {
   const pathname = `/tip/${tipId}`;
-  const searchParams = new URLSearchParams();
+  const searchParams: Record<string, string> = {};
   
   if (viewOnly) {
-    searchParams.set('viewOnly', viewOnly);
+    searchParams.viewOnly = viewOnly as string;
   }
 
   return (

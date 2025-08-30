@@ -11,14 +11,14 @@ interface JournalPageProps {
 
 export default function JournalPage({ tripId, viewOnly, entryId }: JournalPageProps) {
   const pathname = `/journal/${tripId}`;
-  const searchParams = new URLSearchParams();
+  const searchParams: Record<string, string> = {};
   
   if (viewOnly) {
-    searchParams.set('viewOnly', viewOnly);
+    searchParams.viewOnly = viewOnly as string;
   }
   
   if (entryId) {
-    searchParams.set('entryId', entryId);
+    searchParams.entryId = entryId as string;
   }
 
   return (

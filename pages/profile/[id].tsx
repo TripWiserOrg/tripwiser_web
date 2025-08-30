@@ -9,6 +9,7 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ userId }: ProfilePageProps) {
   const pathname = `/profile/${userId}`;
+  const searchParams: Record<string, string> = {};
 
   return (
     <>
@@ -31,7 +32,7 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
         <meta property="twitter:image" content="https://tripwiser.app/og-image.png" />
       </Head>
       
-      <RedirectHandler pathname={pathname} />
+      <RedirectHandler pathname={pathname} searchParams={searchParams} />
     </>
   );
 }

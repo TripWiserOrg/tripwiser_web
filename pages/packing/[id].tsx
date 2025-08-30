@@ -11,14 +11,14 @@ interface PackingPageProps {
 
 export default function PackingPage({ tripId, viewOnly, packingListId }: PackingPageProps) {
   const pathname = `/packing/${tripId}`;
-  const searchParams = new URLSearchParams();
+  const searchParams: Record<string, string> = {};
   
   if (viewOnly) {
-    searchParams.set('viewOnly', viewOnly);
+    searchParams.viewOnly = viewOnly as string;
   }
   
   if (packingListId) {
-    searchParams.set('packingListId', packingListId);
+    searchParams.packingListId = packingListId as string;
   }
 
   return (

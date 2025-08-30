@@ -10,10 +10,10 @@ interface TripPageProps {
 
 export default function TripPage({ tripId, viewOnly }: TripPageProps) {
   const pathname = `/trip/${tripId}`;
-  const searchParams = new URLSearchParams();
+  const searchParams: Record<string, string> = {};
   
   if (viewOnly) {
-    searchParams.set('viewOnly', viewOnly);
+    searchParams.viewOnly = viewOnly as string;
   }
 
   return (
