@@ -2,7 +2,8 @@ import React from 'react';
 import Head from 'next/head';
 import LandingPage from '../components/LandingPage';
 
-export default function Home() {
+export default function HomePage() {
+  // Updated: Added comment to trigger deployment with environment variables
   return (
     <>
       <Head>
