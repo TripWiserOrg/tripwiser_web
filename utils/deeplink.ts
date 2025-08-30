@@ -14,6 +14,8 @@ export interface DeeplinkParams {
 
 import { ENV_CONFIG } from '../config/environment';
 
+export { ENV_CONFIG };
+
 export const APP_CONFIG = {
   androidPackage: ENV_CONFIG.ANDROID_PACKAGE,
   iosBundleId: ENV_CONFIG.IOS_BUNDLE_ID,

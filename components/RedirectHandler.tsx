@@ -8,7 +8,8 @@ import {
   buildAppPath,
   getPageTitle,
   getPageDescription,
-  DeeplinkParams 
+  DeeplinkParams,
+  ENV_CONFIG 
 } from '../utils/deeplink';
 import LandingPage from './LandingPage';
 
@@ -30,6 +31,7 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
     const handleRedirect = async () => {
       try {
         console.log('RedirectHandler: Starting redirect for pathname:', pathname);
+        console.log('RedirectHandler: Environment config:', ENV_CONFIG);
         
         // Parse the URL path
         const parsed = parseUrlPath(pathname);
@@ -75,6 +77,7 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
         // Build the deeplink URL
         const deeplinkUrl = buildDeeplinkUrl(appPath, params);
         console.log('RedirectHandler: Built deeplink URL:', deeplinkUrl);
+        console.log('RedirectHandler: URL Scheme being used:', ENV_CONFIG.URL_SCHEME);
 
         // Detect platform
         const platform = detectPlatform();
@@ -141,6 +144,7 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
     
     console.log('RedirectHandler: AGGRESSIVE app opening attempts starting...');
     console.log('RedirectHandler: Deep link URL:', deeplinkUrl);
+    console.log('RedirectHandler: Environment config for aggressive attempts:', ENV_CONFIG);
     
     // Multiple attempts to open the app
     const attempts = [
