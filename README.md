@@ -35,6 +35,13 @@ Handles various query parameters:
 - Platform detection (iOS/Android/Desktop)
 - Loading states and user feedback
 
+### ✅ Manual Open App Button
+
+- **Always Available**: Manual "Open App" button on every page for testing
+- **Debug Information**: Shows the deep link URL being used
+- **Fallback Support**: Works even when automatic redirection fails
+- **Test Scenarios**: Supports testing with different URL patterns
+
 ### ✅ Universal Links Support
 
 - Apple App Site Association (`.well-known/apple-app-site-association`)
@@ -106,6 +113,12 @@ https://tripwiser-web-lmgo.vercel.app/tip/505
 ```
 https://tripwiser-web-lmgo.vercel.app/create
 https://tripwiser-web-lmgo.vercel.app/create?type=upcoming
+```
+
+### Test Page
+
+```
+https://tripwiser-web-lmgo.vercel.app/test
 ```
 
 ## Technical Implementation
@@ -191,12 +204,36 @@ The `vercel.json` file configures:
 
 ## User Experience Flow
 
-1. **User clicks shared link** → Website loads
+1. **User clicks shared link** → Website loads with appropriate content
 2. **Website detects platform** → iOS/Android/Desktop
-3. **Attempts to open app** → Uses `tripwiser://` scheme
-4. **If app opens** → User sees content in app
-5. **If app not installed** → Shows download buttons
-6. **Fallback to app stores** → User can download app
+3. **Attempts to open app** → Uses `tripwiser://` scheme with 2-second timeout
+4. **If app opens** → User sees content in TripWiser app
+5. **If app not installed** → Shows download buttons with app store links
+6. **Fallback to app stores** → User can download TripWiser app
+7. **Manual button available** → Users can manually test app opening
+
+## Testing Deep Links
+
+### Manual Testing
+
+1. **Visit any URL** on the website
+2. **Click "Open App" button** to manually test deep linking
+3. **Check debug URL** displayed below the button
+4. **Verify app opens** with correct content
+
+### Test Scenarios
+
+- **Home page**: `https://tripwiser-web-lmgo.vercel.app/`
+- **Test page**: `https://tripwiser-web-lmgo.vercel.app/test`
+- **Any deep link**: All URL patterns support manual testing
+
+### Debug Information
+
+The website shows debug information including:
+
+- The exact deep link URL being used
+- Platform detection results
+- App opening status
 
 ## Mobile App Integration
 

@@ -36,7 +36,10 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
         console.log('RedirectHandler: Parsed URL:', parsed);
         
         if (!parsed) {
-          setError('Invalid URL');
+          // Even if URL is invalid, we'll still show the landing page with manual button
+          console.log('RedirectHandler: Invalid URL, showing landing page with manual button');
+          setPageTitle('TripWiser');
+          setPageDescription('Your personal travel companion');
           setIsAttempting(false);
           return;
         }
@@ -50,7 +53,9 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
         // Build the app path
         const appPath = buildAppPath(parsed.type, parsed.id, parsed.params);
         if (!appPath) {
-          setError('Invalid content type');
+          console.log('RedirectHandler: Invalid content type, showing landing page with manual button');
+          setPageTitle('TripWiser');
+          setPageDescription('Your personal travel companion');
           setIsAttempting(false);
           return;
         }
@@ -149,7 +154,7 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
     );
   }
 
-  // Show fallback state (app not installed)
+  // Show fallback state (app not installed) - Always show manual button
   return (
     <LandingPage 
       title={pageTitle}

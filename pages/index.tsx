@@ -28,6 +28,8 @@ export default function Home() {
         title="Welcome to TripWiser"
         description="Your personal travel companion"
         showDownloadButtons={true}
+        deeplinkPath="trip/test123"
+        deeplinkParams={{ viewOnly: 'true' }}
       />
     </>
   );

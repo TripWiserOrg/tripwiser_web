@@ -18,15 +18,19 @@ export default function LandingPage({
 }: LandingPageProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [openAttempted, setOpenAttempted] = useState(false);
+  const [debugUrl, setDebugUrl] = useState<string>('');
 
   const handleOpenApp = async () => {
-    if (!deeplinkPath) return;
+    // Use provided deeplinkPath or default to a test path
+    const pathToUse = deeplinkPath || 'trip/test123';
+    const paramsToUse = deeplinkParams || { viewOnly: 'true' };
     
     setIsOpening(true);
     setOpenAttempted(true);
     
     try {
-      const deeplinkUrl = buildDeeplinkUrl(deeplinkPath, deeplinkParams);
+      const deeplinkUrl = buildDeeplinkUrl(pathToUse, paramsToUse);
+      setDebugUrl(deeplinkUrl);
       console.log('Opening app with URL:', deeplinkUrl);
       
       const platform = detectPlatform();
@@ -78,33 +82,39 @@ export default function LandingPage({
             </div>
           )}
 
-          {/* Open App Button */}
-          {deeplinkPath && (
-            <div className="text-center mb-6">
-              <button
-                onClick={handleOpenApp}
-                disabled={isOpening}
-                className={`btn btn-primary btn-lg mb-4 ${isOpening ? 'opacity-75 cursor-not-allowed' : ''}`}
-              >
-                {isOpening ? (
-                  <>
-                    <div className="spinner-small mr-2"></div>
-                    Opening...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Open in TripWiser App
-                  </>
-                )}
-              </button>
-              <p className="text-sm text-gray-500">
-                {detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app'}
-              </p>
-            </div>
-          )}
+          {/* Manual Open App Button - Always Show for Testing */}
+          <div className="text-center mb-6">
+            <button
+              onClick={handleOpenApp}
+              disabled={isOpening}
+              className={`btn btn-primary btn-lg mb-4 ${isOpening ? 'opacity-75 cursor-not-allowed' : ''}`}
+            >
+              {isOpening ? (
+                <>
+                  <div className="spinner-small mr-2"></div>
+                  Opening...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  {deeplinkPath ? 'Open in TripWiser App' : 'Test Open App'}
+                </>
+              )}
+            </button>
+            <p className="text-sm text-gray-500">
+              {detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app'}
+            </p>
+            
+            {/* Debug URL Display */}
+            {debugUrl && (
+              <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+                <p className="text-xs text-gray-600 mb-2">Debug URL:</p>
+                <p className="text-xs font-mono text-gray-800 break-all">{debugUrl}</p>
+              </div>
+            )}
+          </div>
 
           {/* Download Buttons */}
           {showDownloadButtons && (
