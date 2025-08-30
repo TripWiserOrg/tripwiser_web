@@ -13,20 +13,20 @@ export default function App({ Component, pageProps }: AppProps) {
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tripwiser.app/" />
+        <meta property="og:url" content="https://tripwiser-web-lmgo.vercel.app/" />
         <meta property="og:title" content="TripWiser" />
         <meta property="og:description" content="Your personal travel companion. Plan trips, pack smart, and capture memories." />
-        <meta property="og:image" content="https://tripwiser.app/og-image.png" />
+        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://tripwiser.app/" />
+        <meta property="twitter:url" content="https://tripwiser-web-lmgo.vercel.app/" />
         <meta property="twitter:title" content="TripWiser" />
         <meta property="twitter:description" content="Your personal travel companion. Plan trips, pack smart, and capture memories." />
-        <meta property="twitter:image" content="https://tripwiser.app/og-image.png" />
+        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
         
         {/* App Store Meta Tags */}
-        <meta name="apple-itunes-app" content="app-id=1234567890" />
+        <meta name="apple-itunes-app" content="app-id=MT98B5253F" />
         <meta name="google-play-app" content="app-id=com.tripwiser.android.app" />
         
         <title>TripWiser - Your Travel Companion</title>

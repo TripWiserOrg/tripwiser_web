@@ -1,5 +1,5 @@
-import React from 'react';
-import { APP_CONFIG, buildDeeplinkUrl, detectPlatform } from '../utils/deeplink';
+import React, { useState } from 'react';
+import { APP_CONFIG, buildDeeplinkUrl, detectPlatform, attemptAppOpen } from '../utils/deeplink';
 
 interface LandingPageProps {
   title?: string;
@@ -16,6 +16,45 @@ export default function LandingPage({
   deeplinkPath,
   deeplinkParams
 }: LandingPageProps) {
+  const [isOpening, setIsOpening] = useState(false);
+  const [openAttempted, setOpenAttempted] = useState(false);
+
+  const handleOpenApp = async () => {
+    if (!deeplinkPath) return;
+    
+    setIsOpening(true);
+    setOpenAttempted(true);
+    
+    try {
+      const deeplinkUrl = buildDeeplinkUrl(deeplinkPath, deeplinkParams);
+      console.log('Opening app with URL:', deeplinkUrl);
+      
+      const platform = detectPlatform();
+      if (platform === 'desktop') {
+        // On desktop, just show the button was clicked
+        setTimeout(() => {
+          setIsOpening(false);
+        }, 1000);
+        return;
+      }
+      
+      // On mobile, attempt to open the app
+      const appOpened = await attemptAppOpen(deeplinkUrl, 2000);
+      
+      if (!appOpened) {
+        // If app didn't open, show download buttons after a delay
+        setTimeout(() => {
+          setIsOpening(false);
+        }, 500);
+      } else {
+        setIsOpening(false);
+      }
+    } catch (error) {
+      console.error('Error opening app:', error);
+      setIsOpening(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -32,30 +71,40 @@ export default function LandingPage({
           </div>
 
           {/* Loading State */}
-          <div className="text-center mb-8">
-            <div className="spinner mx-auto mb-4"></div>
-            <p className="text-gray-600 animate-pulse">Opening TripWiser...</p>
-          </div>
+          {!openAttempted && (
+            <div className="text-center mb-8">
+              <div className="spinner mx-auto mb-4"></div>
+              <p className="text-gray-600 animate-pulse">Opening TripWiser...</p>
+            </div>
+          )}
 
           {/* Open App Button */}
+          {deeplinkPath && (
             <div className="text-center mb-6">
               <button
-                onClick={() => {
-                  const deeplinkUrl = buildDeeplinkUrl(deeplinkPath || "sacha", deeplinkParams);
-                  console.log('Opening app with URL:', deeplinkUrl);
-                  window.location.href = deeplinkUrl;
-                }}
-                className="btn btn-primary btn-lg mb-4"
+                onClick={handleOpenApp}
+                disabled={isOpening}
+                className={`btn btn-primary btn-lg mb-4 ${isOpening ? 'opacity-75 cursor-not-allowed' : ''}`}
               >
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-                Open in TripWiser App
+                {isOpening ? (
+                  <>
+                    <div className="spinner-small mr-2"></div>
+                    Opening...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Open in TripWiser App
+                  </>
+                )}
               </button>
               <p className="text-sm text-gray-500">
                 {detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app'}
               </p>
             </div>
+          )}
 
           {/* Download Buttons */}
           {showDownloadButtons && (

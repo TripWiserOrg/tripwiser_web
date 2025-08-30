@@ -1,235 +1,242 @@
-# TripWiser Deeplink Website
+# TripWiser Deep Link Website
 
-A Next.js website that handles deeplinks for the TripWiser mobile app, redirecting users to the appropriate screens when they click shared links.
+A Next.js website that handles deep linking for the TripWiser mobile app. This website serves as a bridge between web links and the TripWiser mobile application, providing seamless user experience for shared content.
 
 ## Features
 
-- **Universal Links Support**: Works with both iOS and Android apps
-- **Multiple URL Patterns**: Handles all TripWiser content types
-- **Smart Fallbacks**: Redirects to app stores if app is not installed
-- **SEO Optimized**: Proper meta tags for social sharing
-- **Responsive Design**: Works on all devices
-- **Modern UI**: Beautiful landing page with TripWiser branding
+### ✅ Dynamic Route Handling
 
-## URL Patterns Supported
+The website handles all URL patterns:
 
-- `/trip/{tripId}` - Trip details
-- `/packing/{tripId}` - Packing lists
-- `/journal/{tripId}` - Journal entries
-- `/itinerary/{tripId}` - Trip itineraries
-- `/profile/{userId}` - User profiles
-- `/discover/post/{postId}` - Discovery posts
-- `/template/{templateId}` - Trip templates
-- `/tip/{tipId}` - Travel tips
-- `/create` - Create new trip
+- `/trip/[id]` - Trip details
+- `/packing/[id]` - Packing lists
+- `/journal/[id]` - Journal entries
+- `/itinerary/[id]` - Itineraries
+- `/profile/[id]` - User profiles
+- `/discover/post/[id]` - Discovery posts
+- `/template/[id]` - Templates
+- `/tip/[id]` - Tips
+- `/create` - Create trip
 
-## Prerequisites
+### ✅ Query Parameter Support
 
-Before deploying, you need to gather the following information:
+Handles various query parameters:
 
-1. **iOS Team ID**: From Apple Developer Portal
-2. **Android SHA256 Fingerprint**: From Google Play Console
-3. **iOS App Store ID**: Once app is published
-4. **Custom Domain**: For universal links to work
+- `viewOnly=true` - Read-only mode
+- `packingListId=xxx` - Specific packing list
+- `entryId=xxx` - Specific journal entry
+- `itineraryId=xxx` - Specific itinerary
+- `type=upcoming/ongoing/past` - Trip type filter
 
-## Setup Instructions
+### ✅ Smart App Opening Logic
 
-### 1. Install Dependencies
+- Attempts to open the TripWiser app using `tripwiser://` scheme
+- 2-second timeout with fallback to app stores
+- Platform detection (iOS/Android/Desktop)
+- Loading states and user feedback
+
+### ✅ Universal Links Support
+
+- Apple App Site Association (`.well-known/apple-app-site-association`)
+- Android App Links (`.well-known/assetlinks.json`)
+- Proper content-type headers
+
+### ✅ Error Handling
+
+- Invalid URL redirection to home page
+- Graceful fallbacks for missing app
+- User-friendly error messages
+
+## URL Examples
+
+### Trip Details
+
+```
+https://tripwiser-web-lmgo.vercel.app/trip/123
+https://tripwiser-web-lmgo.vercel.app/trip/123?viewOnly=true
+```
+
+### Packing Lists
+
+```
+https://tripwiser-web-lmgo.vercel.app/packing/456
+https://tripwiser-web-lmgo.vercel.app/packing/456?packingListId=789
+```
+
+### Journal Entries
+
+```
+https://tripwiser-web-lmgo.vercel.app/journal/789
+https://tripwiser-web-lmgo.vercel.app/journal/789?entryId=101
+```
+
+### Itineraries
+
+```
+https://tripwiser-web-lmgo.vercel.app/itinerary/101
+https://tripwiser-web-lmgo.vercel.app/itinerary/101?itineraryId=202
+```
+
+### User Profiles
+
+```
+https://tripwiser-web-lmgo.vercel.app/profile/user123
+```
+
+### Discovery Posts
+
+```
+https://tripwiser-web-lmgo.vercel.app/discover/post/303
+```
+
+### Templates
+
+```
+https://tripwiser-web-lmgo.vercel.app/template/404
+```
+
+### Travel Tips
+
+```
+https://tripwiser-web-lmgo.vercel.app/tip/505
+```
+
+### Create Trip
+
+```
+https://tripwiser-web-lmgo.vercel.app/create
+https://tripwiser-web-lmgo.vercel.app/create?type=upcoming
+```
+
+## Technical Implementation
+
+### Deep Link Structure
+
+The app uses the `tripwiser://` URL scheme:
+
+```
+tripwiser://[path]?[parameters]
+```
+
+### Universal Links
+
+- **iOS**: `https://tripwiser-web-lmgo.vercel.app/.well-known/apple-app-site-association`
+- **Android**: `https://tripwiser-web-lmgo.vercel.app/.well-known/assetlinks.json`
+
+### App Store URLs
+
+- **iOS**: `https://apps.apple.com/app/tripwiser/MT98B5253F`
+- **Android**: `https://play.google.com/store/apps/details?id=com.tripwiser.android.app`
+
+## Development
+
+### Prerequisites
+
+- Node.js 16+
+- npm or yarn
+
+### Installation
 
 ```bash
 npm install
 ```
 
-### 2. Update Configuration
-
-Edit the following files with your actual values:
-
-#### `utils/deeplink.ts`
-
-- Update `iosStoreUrl` with your actual App Store ID
-- Update `androidStoreUrl` if needed
-
-#### `public/.well-known/apple-app-site-association`
-
-- Replace `TEAM_ID` with your actual iOS Team ID
-
-#### `public/.well-known/assetlinks.json`
-
-- Replace `YOUR_APP_SIGNING_SHA256_FINGERPRINT` with your actual SHA256 fingerprint
-
-### 3. Development
+### Development Server
 
 ```bash
 npm run dev
 ```
 
-The website will be available at `http://localhost:3000`
-
-### 4. Build for Production
+### Build for Production
 
 ```bash
 npm run build
 npm start
 ```
 
-## Deployment
+### Testing URLs
 
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Set up your custom domain in Vercel
-4. Deploy
-
-### Netlify
-
-1. Push your code to GitHub
-2. Connect your repository to Netlify
-3. Set build command: `npm run build`
-4. Set publish directory: `.next`
-5. Set up your custom domain
-
-### Manual Deployment
-
-1. Build the project: `npm run build`
-2. Upload the `.next` folder to your hosting provider
-3. Ensure your hosting provider supports Node.js
+```bash
+node scripts/test-urls.js
+```
 
 ## Configuration
 
-### Environment Variables
+Update the configuration in `config/environment.ts`:
 
-Create a `.env.local` file for local development:
-
-```env
-NEXT_PUBLIC_APP_URL=https://tripwiser.app
-NEXT_PUBLIC_BACKEND_URL=https://tripwiser-backend.onrender.com
+```typescript
+export const ENV_CONFIG = {
+  APP_URL: "https://tripwiser-web-lmgo.vercel.app/",
+  ANDROID_STORE_URL:
+    "https://play.google.com/store/apps/details?id=com.tripwiser.android.app",
+  IOS_STORE_URL: "https://apps.apple.com/app/tripwiser/MT98B5253F",
+  ANDROID_PACKAGE: "com.tripwiser.android.app",
+  IOS_BUNDLE_ID: "com.tripwiser.app",
+  URL_SCHEME: "tripwiser://",
+};
 ```
 
-### Custom Domain Setup
+## Deployment
 
-1. Purchase a domain (e.g., `tripwiser.app`)
-2. Configure DNS to point to your hosting provider
-3. Set up SSL certificate (automatic with Vercel/Netlify)
-4. Update the domain in all meta tags and configuration files
+The website is deployed on Vercel at:
+https://tripwiser-web-lmgo.vercel.app/
 
-## Testing
+### Vercel Configuration
 
-### Test URLs
+The `vercel.json` file configures:
 
-Once deployed, test these URLs:
+- URL rewrites for universal links
+- Proper content-type headers
+- Fallback routing
 
-```
-https://tripwiser.app/trip/123
-https://tripwiser.app/trip/123?viewOnly=true
-https://tripwiser.app/packing/456?packingListId=789
-https://tripwiser.app/journal/101?entryId=202&viewOnly=true
-https://tripwiser.app/itinerary/303?itineraryId=404
-https://tripwiser.app/profile/user505
-https://tripwiser.app/discover/post/606
-https://tripwiser.app/template/707
-https://tripwiser.app/tip/808?viewOnly=true
-https://tripwiser.app/create?type=upcoming
-```
+## User Experience Flow
 
-### Testing Checklist
+1. **User clicks shared link** → Website loads
+2. **Website detects platform** → iOS/Android/Desktop
+3. **Attempts to open app** → Uses `tripwiser://` scheme
+4. **If app opens** → User sees content in app
+5. **If app not installed** → Shows download buttons
+6. **Fallback to app stores** → User can download app
 
-- [ ] iOS device with app installed
-- [ ] iOS device without app installed
-- [ ] Android device with app installed
-- [ ] Android device without app installed
-- [ ] Desktop browser
-- [ ] All URL patterns work correctly
-- [ ] App store redirects work
-- [ ] Social media previews work
+## Mobile App Integration
 
-## App Integration
+The mobile app should handle the following URL schemes:
 
-### iOS (React Native)
+### iOS (Info.plist)
 
-Add to your `app.config.js`:
-
-```javascript
-{
-  ios: {
-    bundleIdentifier: 'com.tripwiser.app',
-    associatedDomains: ['applinks:tripwiser.app']
-  }
-}
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLName</key>
+    <string>com.tripwiser.app</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>tripwiser</string>
+    </array>
+  </dict>
+</array>
 ```
 
-### Android (React Native)
+### Android (AndroidManifest.xml)
 
-Add to your `app.config.js`:
-
-```javascript
-{
-  android: {
-    package: 'com.tripwiser.android.app',
-    intentFilters: [
-      {
-        action: 'VIEW',
-        autoVerify: true,
-        data: [
-          {
-            scheme: 'https',
-            host: 'tripwiser.app'
-          }
-        ],
-        category: ['BROWSABLE', 'DEFAULT']
-      }
-    ]
-  }
-}
+```xml
+<activity android:name=".MainActivity">
+  <intent-filter android:autoVerify="true">
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data android:scheme="https" android:host="tripwiser-web-lmgo.vercel.app" />
+  </intent-filter>
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data android:scheme="tripwiser" />
+  </intent-filter>
+</activity>
 ```
-
-## Security Considerations
-
-1. **HTTPS Required**: Universal links only work over HTTPS
-2. **Domain Verification**: Ensure domain ownership for app store listings
-3. **Input Validation**: All URL parameters are validated
-4. **Rate Limiting**: Consider implementing rate limiting for production
-
-## Analytics
-
-The website includes basic analytics tracking. You can enhance this by:
-
-1. Adding Google Analytics
-2. Tracking link clicks
-3. Monitoring app install conversions
-4. Tracking user engagement
-
-## Maintenance
-
-1. **Regular Testing**: Test all URL patterns monthly
-2. **App Store Updates**: Update links when app store IDs change
-3. **Certificate Updates**: Update SHA256 fingerprints when certificates change
-4. **Domain Renewal**: Ensure domain doesn't expire
-5. **Performance Monitoring**: Monitor loading times and redirect speeds
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Universal links not working**: Check domain verification and SSL certificate
-2. **App not opening**: Verify URL scheme and app configuration
-3. **Store redirects not working**: Check app store URLs
-4. **Meta tags not showing**: Verify Open Graph tags
-
-### Debug Mode
-
-Enable debug logging by setting `NODE_ENV=development` and checking browser console for detailed logs.
 
 ## Support
 
-For issues or questions:
-
-1. Check the troubleshooting section
-2. Verify all configuration is correct
-3. Test on different devices and platforms
-4. Check browser console for errors
-
-## License
-
-This project is proprietary to TripWiser. All rights reserved.
-
+For issues or questions about the deep linking implementation, please refer to the mobile app documentation or contact the development team.

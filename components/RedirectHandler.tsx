@@ -6,6 +6,8 @@ import {
   detectPlatform,
   parseUrlPath,
   buildAppPath,
+  getPageTitle,
+  getPageDescription,
   DeeplinkParams 
 } from '../utils/deeplink';
 import LandingPage from './LandingPage';
@@ -21,6 +23,8 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
   const [error, setError] = useState<string | null>(null);
   const [deeplinkPath, setDeeplinkPath] = useState<string>('');
   const [deeplinkParams, setDeeplinkParams] = useState<any>(null);
+  const [pageTitle, setPageTitle] = useState<string>('TripWiser');
+  const [pageDescription, setPageDescription] = useState<string>('Your personal travel companion');
 
   useEffect(() => {
     const handleRedirect = async () => {
@@ -36,6 +40,12 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
           setIsAttempting(false);
           return;
         }
+
+        // Set page title and description
+        const title = getPageTitle(parsed.type, parsed.id);
+        const description = getPageDescription(parsed.type, parsed.id);
+        setPageTitle(title);
+        setPageDescription(description);
 
         // Build the app path
         const appPath = buildAppPath(parsed.type, parsed.id, parsed.params);
@@ -61,7 +71,7 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
         const deeplinkUrl = buildDeeplinkUrl(appPath, params);
         console.log('RedirectHandler: Built deeplink URL:', deeplinkUrl);
 
-        // Attempt to open the app
+        // Detect platform
         const platform = detectPlatform();
         console.log('RedirectHandler: Detected platform:', platform);
         
@@ -71,16 +81,25 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
           return;
         }
 
-        // On mobile, try to open the app immediately
+        // On mobile, try to open the app with timeout
         console.log('RedirectHandler: Attempting to open app with URL:', deeplinkUrl);
-        window.location.href = deeplinkUrl;
         
-        // Set a timeout to show the landing page if app doesn't open
-        setTimeout(() => {
-          console.log('RedirectHandler: App open timeout, showing landing page');
+        try {
+          const appOpened = await attemptAppOpen(deeplinkUrl, 2000);
+          
+          if (appOpened) {
+            console.log('RedirectHandler: App opened successfully');
+            setHasApp(true);
+          } else {
+            console.log('RedirectHandler: App not installed or failed to open');
+            setHasApp(false);
+          }
+        } catch (err) {
+          console.error('RedirectHandler: Error opening app:', err);
           setHasApp(false);
-          setIsAttempting(false);
-        }, 1500);
+        }
+        
+        setIsAttempting(false);
       } catch (err) {
         console.error('Redirect error:', err);
         setError('Failed to open app');
@@ -95,9 +114,11 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
   if (isAttempting) {
     return (
       <LandingPage 
-        title="Opening TripWiser..."
-        description="Redirecting you to the app"
+        title={pageTitle}
+        description={pageDescription}
         showDownloadButtons={false}
+        deeplinkPath={deeplinkPath}
+        deeplinkParams={deeplinkParams}
       />
     );
   }
@@ -119,7 +140,7 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
   if (hasApp) {
     return (
       <LandingPage 
-        title="TripWiser Opened!"
+        title={pageTitle}
         description="The app should have opened. If not, download it below."
         showDownloadButtons={true}
         deeplinkPath={deeplinkPath}
@@ -131,8 +152,8 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
   // Show fallback state (app not installed)
   return (
     <LandingPage 
-      title="Download TripWiser"
-      description="Get the app to view this content"
+      title={pageTitle}
+      description={pageDescription}
       showDownloadButtons={true}
       deeplinkPath={deeplinkPath}
       deeplinkParams={deeplinkParams}

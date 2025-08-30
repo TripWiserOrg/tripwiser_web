@@ -20,9 +20,9 @@ export const ENV_CONFIG = {
   // FACEBOOK_PIXEL_ID: process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID,
   
   // Environment
-  NODE_ENV: 'development',
-  IS_PRODUCTION: true,
-  IS_DEVELOPMENT: false,
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  IS_PRODUCTION: process.env.NODE_ENV === 'production',
+  IS_DEVELOPMENT: process.env.NODE_ENV === 'development',
 };
 
 // Required configuration check

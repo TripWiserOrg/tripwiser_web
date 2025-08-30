@@ -272,6 +272,15 @@ a {
   animation: spin 1s linear infinite;
 }
 
+.spinner-small {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
@@ -304,4 +313,3 @@ a {
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-
