@@ -13,7 +13,12 @@ interface DynamicPageProps {
 }
 
 export default function DynamicPage({ pathname, searchParams, pageTitle, pageDescription, deeplinkUrl }: DynamicPageProps) {
-  const searchParamsObj = new URLSearchParams(searchParams);
+  // Convert URLSearchParams string to Record<string, string>
+  const searchParamsObj: Record<string, string> = {};
+  const params = new URLSearchParams(searchParams);
+  params.forEach((value, key) => {
+    searchParamsObj[key] = value;
+  });
 
   return (
     <>
