@@ -12,9 +12,20 @@ export interface DeeplinkParams {
   [key: string]: string | boolean | undefined;
 }
 
-import { ENV_CONFIG } from '../config/environment';
+// Hardcoded values for testing - bypass environment variables
+export const ENV_CONFIG = {
+  APP_URL: 'https://tripwiser-web-lmgo.vercel.app/',
+  BACKEND_URL: 'https://tripwiser-backend.onrender.com',
+  ANDROID_STORE_URL: 'https://play.google.com/store/apps/details?id=com.tripwiser.android.app',
+  IOS_STORE_URL: 'https://apps.apple.com/app/tripwiser/MT98B5253F',
+  ANDROID_PACKAGE: 'com.tripwiser.android.app',
+  IOS_BUNDLE_ID: 'com.tripwiser.app',
+  URL_SCHEME: 'tripwiser://',
+  GA_TRACKING_ID: process.env.NEXT_PUBLIC_GA_TRACKING_ID || '',
+  FACEBOOK_PIXEL_ID: process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || ''
+};
 
-export { ENV_CONFIG };
+
 
 export const APP_CONFIG = {
   androidPackage: ENV_CONFIG.ANDROID_PACKAGE,

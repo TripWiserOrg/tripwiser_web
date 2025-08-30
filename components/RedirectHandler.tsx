@@ -1,191 +1,138 @@
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { 
-  attemptAppOpen, 
+  parseUrlPath, 
   buildDeeplinkUrl, 
-  getStoreUrl, 
+  attemptAppOpen, 
   detectPlatform,
-  parseUrlPath,
-  buildAppPath,
   getPageTitle,
   getPageDescription,
-  DeeplinkParams,
-  ENV_CONFIG 
+  ENV_CONFIG
 } from '../utils/deeplink';
-import LandingPage from './LandingPage';
 
 interface RedirectHandlerProps {
   pathname: string;
-  searchParams?: URLSearchParams;
+  searchParams: Record<string, string>;
 }
 
 export default function RedirectHandler({ pathname, searchParams }: RedirectHandlerProps) {
-  const [isAttempting, setIsAttempting] = useState(true);
-  const [hasApp, setHasApp] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [deeplinkPath, setDeeplinkPath] = useState<string>('');
-  const [deeplinkParams, setDeeplinkParams] = useState<any>(null);
-  const [pageTitle, setPageTitle] = useState<string>('TripWiser');
-  const [pageDescription, setPageDescription] = useState<string>('Your personal travel companion');
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
+  const [debugUrl, setDebugUrl] = useState<string>('');
+  const router = useRouter();
 
-  useEffect(() => {
-    const handleRedirect = async () => {
-      try {
-        console.log('RedirectHandler: Starting redirect for pathname:', pathname);
-        console.log('RedirectHandler: Environment config:', ENV_CONFIG);
-        
-        // Parse the URL path
-        const parsed = parseUrlPath(pathname);
-        console.log('RedirectHandler: Parsed URL:', parsed);
-        
-        if (!parsed) {
-          // Even if URL is invalid, we'll still show the landing page with manual button
-          console.log('RedirectHandler: Invalid URL, showing landing page with manual button');
-          setPageTitle('TripWiser');
-          setPageDescription('Your personal travel companion');
-          setIsAttempting(false);
-          return;
-        }
+  const handleRedirect = async () => {
+    console.log('RedirectHandler: Starting redirect process...');
+    console.log('RedirectHandler: Pathname:', pathname);
+    console.log('RedirectHandler: Search params:', searchParams);
+    console.log('RedirectHandler: Environment config:', ENV_CONFIG);
+    console.log('RedirectHandler: URL Scheme being used:', ENV_CONFIG.URL_SCHEME);
 
-        // Set page title and description
-        const title = getPageTitle(parsed.type, parsed.id);
-        const description = getPageDescription(parsed.type, parsed.id);
-        setPageTitle(title);
-        setPageDescription(description);
+    try {
+      // Parse the URL path
+      const parsedPath = parseUrlPath(pathname);
+      console.log('RedirectHandler: Parsed path result:', parsedPath);
 
-        // Build the app path
-        const appPath = buildAppPath(parsed.type, parsed.id, parsed.params);
-        if (!appPath) {
-          console.log('RedirectHandler: Invalid content type, showing landing page with manual button');
-          setPageTitle('TripWiser');
-          setPageDescription('Your personal travel companion');
-          setIsAttempting(false);
-          return;
-        }
-
-        // Add query parameters
-        const params: DeeplinkParams = { ...parsed.params };
-        if (searchParams) {
-          searchParams.forEach((value, key) => {
-            params[key] = value;
-          });
-        }
-
-        // Store deeplink info for the button
-        setDeeplinkPath(appPath);
-        setDeeplinkParams(params);
-
-        // Build the deeplink URL
-        const deeplinkUrl = buildDeeplinkUrl(appPath, params);
-        console.log('RedirectHandler: Built deeplink URL:', deeplinkUrl);
-        console.log('RedirectHandler: URL Scheme being used:', ENV_CONFIG.URL_SCHEME);
-
-        // Detect platform
-        const platform = detectPlatform();
-        console.log('RedirectHandler: Detected platform:', platform);
-        
-        if (platform === 'desktop') {
-          // On desktop, show the landing page immediately
-          setIsAttempting(false);
-          return;
-        }
-
-        // On mobile, immediately try to open the app
-        console.log('RedirectHandler: Immediately attempting to open app with URL:', deeplinkUrl);
-        
-        // Try to open the app immediately
-        try {
-          const appOpened = await attemptAppOpen(deeplinkUrl, 1500);
-          
-          if (appOpened) {
-            console.log('RedirectHandler: App opened successfully');
-            setHasApp(true);
-          } else {
-            console.log('RedirectHandler: App not installed or failed to open');
-            setHasApp(false);
-          }
-        } catch (err) {
-          console.error('RedirectHandler: Error opening app:', err);
-          setHasApp(false);
-        }
-        
-        setIsAttempting(false);
-      } catch (err) {
-        console.error('Redirect error:', err);
-        setError('Failed to open app');
-        setIsAttempting(false);
+      if (!parsedPath) {
+        console.log('RedirectHandler: Invalid path, redirecting to home');
+        router.push('/');
+        return;
       }
-    };
 
-    // Execute immediately
-    handleRedirect();
-  }, [pathname, searchParams]);
+      // Build the deep link URL
+      const deeplinkUrl = buildDeeplinkUrl(
+        `${parsedPath.type}/${parsedPath.id}`,
+        { ...parsedPath.params, ...searchParams }
+      );
+      
+      console.log('RedirectHandler: Built deeplink URL:', deeplinkUrl);
+      setDebugUrl(deeplinkUrl);
 
-  // Immediate app opening attempt for mobile devices - MULTIPLE ATTEMPTS
+      // Check if we're on mobile
+      const platform = detectPlatform();
+      console.log('RedirectHandler: Platform detected:', platform);
+
+      if (platform === 'desktop') {
+        console.log('RedirectHandler: Desktop detected, showing landing page');
+        return;
+      }
+
+      setIsRedirecting(true);
+      setRedirectAttempted(true);
+
+      // Attempt to open the app
+      console.log('RedirectHandler: Attempting to open app...');
+      const appOpened = await attemptAppOpen(deeplinkUrl, 2000);
+
+      if (appOpened) {
+        console.log('RedirectHandler: App opened successfully!');
+        // App opened, we can stay on this page or redirect
+      } else {
+        console.log('RedirectHandler: App did not open, showing fallback');
+        // App didn't open, show fallback
+      }
+
+    } catch (error) {
+      console.error('RedirectHandler: Error during redirect:', error);
+      setIsRedirecting(false);
+    }
+  };
+
   useEffect(() => {
     const platform = detectPlatform();
     if (platform === 'desktop') return;
 
-    // Parse the URL immediately
-    const parsed = parseUrlPath(pathname);
-    if (!parsed) return;
+    console.log('RedirectHandler: AGGRESSIVE app opening attempts starting...');
+    console.log('RedirectHandler: Deep link URL:', debugUrl);
+    console.log('RedirectHandler: Environment config for aggressive attempts:', ENV_CONFIG);
 
-    const appPath = buildAppPath(parsed.type, parsed.id, parsed.params);
-    if (!appPath) return;
-
-    // Add query parameters
-    const params: DeeplinkParams = { ...parsed.params };
-    if (searchParams) {
-      searchParams.forEach((value, key) => {
-        params[key] = value;
-      });
+    // Parse URL and build deeplink
+    const parsedPath = parseUrlPath(pathname);
+    if (!parsedPath) {
+      console.log('RedirectHandler: Invalid path, not attempting app open');
+      return;
     }
 
-    const deeplinkUrl = buildDeeplinkUrl(appPath, params);
+    const deeplinkUrl = buildDeeplinkUrl(
+      `${parsedPath.type}/${parsedPath.id}`,
+      { ...parsedPath.params, ...searchParams }
+    );
     
-    console.log('RedirectHandler: AGGRESSIVE app opening attempts starting...');
-    console.log('RedirectHandler: Deep link URL:', deeplinkUrl);
-    console.log('RedirectHandler: Environment config for aggressive attempts:', ENV_CONFIG);
-    
-    // Multiple attempts to open the app
+    console.log('RedirectHandler: Built deeplink URL for aggressive attempts:', deeplinkUrl);
+    setDebugUrl(deeplinkUrl);
+
+    // Multiple aggressive attempts
     const attempts = [
-      () => {
-        console.log('RedirectHandler: Attempt 1 - Immediate redirect');
-        window.location.href = deeplinkUrl;
+      () => { 
+        console.log('RedirectHandler: Attempt 1 - Immediate window.location.href');
+        window.location.href = deeplinkUrl; 
       },
-      () => {
-        console.log('RedirectHandler: Attempt 2 - After 100ms');
-        setTimeout(() => {
-          window.location.href = deeplinkUrl;
-        }, 100);
+      () => { 
+        console.log('RedirectHandler: Attempt 2 - Delayed window.location.href (100ms)');
+        setTimeout(() => { window.location.href = deeplinkUrl; }, 100); 
       },
-      () => {
-        console.log('RedirectHandler: Attempt 3 - After 500ms');
-        setTimeout(() => {
-          window.location.href = deeplinkUrl;
-        }, 500);
+      () => { 
+        console.log('RedirectHandler: Attempt 3 - Delayed window.location.href (500ms)');
+        setTimeout(() => { window.location.href = deeplinkUrl; }, 500); 
       },
-      () => {
-        console.log('RedirectHandler: Attempt 4 - After 1000ms');
-        setTimeout(() => {
-          window.location.href = deeplinkUrl;
-        }, 1000);
+      () => { 
+        console.log('RedirectHandler: Attempt 4 - Delayed window.location.href (1000ms)');
+        setTimeout(() => { window.location.href = deeplinkUrl; }, 1000); 
       }
     ];
 
-    // Execute all attempts
+    // Execute attempts with delays
     attempts.forEach((attempt, index) => {
       if (index === 0) {
-        // First attempt immediately
         attempt();
       } else {
-        // Subsequent attempts with delays
         setTimeout(attempt, index * 200);
       }
     });
 
-    // Also try using window.open as a fallback
+    // Final fallback with window.open
     setTimeout(() => {
-      console.log('RedirectHandler: Attempt 5 - Using window.open');
+      console.log('RedirectHandler: Final attempt - window.open');
       try {
         window.open(deeplinkUrl, '_self');
       } catch (error) {
@@ -195,54 +142,71 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
 
   }, [pathname, searchParams]);
 
-  // Show loading state while attempting to open app
-  if (isAttempting) {
-    return (
-      <LandingPage 
-        title={pageTitle}
-        description={pageDescription}
-        showDownloadButtons={false}
-        deeplinkPath={deeplinkPath}
-        deeplinkParams={deeplinkParams}
-      />
-    );
-  }
+  // Call handleRedirect immediately
+  useEffect(() => {
+    handleRedirect();
+  }, []);
 
-  // Show error state
-  if (error) {
-    return (
-      <LandingPage 
-        title="Oops!"
-        description={error}
-        showDownloadButtons={true}
-        deeplinkPath={deeplinkPath}
-        deeplinkParams={deeplinkParams}
-      />
-    );
-  }
-
-  // Show success state (app opened)
-  if (hasApp) {
-    return (
-      <LandingPage 
-        title={pageTitle}
-        description="The app should have opened. If not, download it below."
-        showDownloadButtons={true}
-        deeplinkPath={deeplinkPath}
-        deeplinkParams={deeplinkParams}
-      />
-    );
-  }
-
-  // Show fallback state (app not installed) - Always show manual button
   return (
-    <LandingPage 
-      title={pageTitle}
-      description={pageDescription}
-      showDownloadButtons={true}
-      deeplinkPath={deeplinkPath}
-      deeplinkParams={deeplinkParams}
-    />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            {isRedirecting ? 'Opening TripWiser...' : 'TripWiser'}
+          </h1>
+          <p className="text-gray-600">
+            {isRedirecting 
+              ? 'Redirecting you to the TripWiser app...' 
+              : 'Your personal travel companion'
+            }
+          </p>
+        </div>
+
+        {isRedirecting && (
+          <div className="mb-6">
+            <div className="spinner-small mx-auto mb-4"></div>
+            <p className="text-sm text-gray-500">
+              If the app doesn't open automatically, please tap the button below
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <button
+            onClick={handleRedirect}
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+          >
+            {isRedirecting ? 'Try Again' : 'Open in TripWiser App'}
+          </button>
+
+          <div className="flex space-x-4">
+            <a
+              href="https://apps.apple.com/app/tripwiser/MT98B5253F"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 bg-black text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+            >
+              App Store
+            </a>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.tripwiser.android.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+            >
+              Google Play
+            </a>
+          </div>
+        </div>
+
+        {debugUrl && (
+          <div className="mt-6 p-3 bg-gray-100 rounded-lg">
+            <p className="text-xs text-gray-600 mb-1">Debug URL:</p>
+            <p className="text-xs font-mono text-gray-800 break-all">{debugUrl}</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
