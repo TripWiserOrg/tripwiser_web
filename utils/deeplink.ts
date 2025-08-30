@@ -79,24 +79,63 @@ export function attemptAppOpen(deeplinkUrl: string, timeoutMs: number = 2000): P
       return;
     }
 
+    // Store the current page visibility state
+    let pageHidden = false;
+    let appOpened = false;
+
+    // Listen for page visibility changes (app opening will hide the page)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        pageHidden = true;
+        console.log('attemptAppOpen: Page hidden, app likely opened');
+      }
+    };
+
+    // Listen for page focus/blur events
+    const handlePageBlur = () => {
+      pageHidden = true;
+      console.log('attemptAppOpen: Page blurred, app likely opened');
+    };
+
+    // Add event listeners
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handlePageBlur);
+
     // Set a timeout to detect if the app opened
     const timeout = setTimeout(() => {
       console.log('attemptAppOpen: Timeout reached, app likely not installed');
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handlePageBlur);
       resolve(false);
     }, timeoutMs);
 
     // Try to open the app
     try {
+      console.log('attemptAppOpen: Attempting to open app with URL:', deeplinkUrl);
       window.location.href = deeplinkUrl;
       
-      // If we're still here after a short delay, the app probably opened
+      // Check if page was hidden (indicating app opened)
       setTimeout(() => {
-        clearTimeout(timeout);
-        console.log('attemptAppOpen: App opened successfully');
-        resolve(true);
-      }, 100);
+        if (pageHidden) {
+          clearTimeout(timeout);
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          window.removeEventListener('blur', handlePageBlur);
+          console.log('attemptAppOpen: App opened successfully (page hidden)');
+          resolve(true);
+        } else {
+          // If page wasn't hidden, the app probably didn't open
+          clearTimeout(timeout);
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          window.removeEventListener('blur', handlePageBlur);
+          console.log('attemptAppOpen: App did not open (page still visible)');
+          resolve(false);
+        }
+      }, 500); // Wait 500ms to see if page gets hidden
+      
     } catch (error) {
       clearTimeout(timeout);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handlePageBlur);
       console.error('attemptAppOpen: Error opening app:', error);
       resolve(false);
     }

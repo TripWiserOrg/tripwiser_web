@@ -86,11 +86,12 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
           return;
         }
 
-        // On mobile, try to open the app with timeout
-        console.log('RedirectHandler: Attempting to open app with URL:', deeplinkUrl);
+        // On mobile, immediately try to open the app
+        console.log('RedirectHandler: Immediately attempting to open app with URL:', deeplinkUrl);
         
+        // Try to open the app immediately
         try {
-          const appOpened = await attemptAppOpen(deeplinkUrl, 2000);
+          const appOpened = await attemptAppOpen(deeplinkUrl, 1500);
           
           if (appOpened) {
             console.log('RedirectHandler: App opened successfully');
@@ -112,7 +113,82 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
       }
     };
 
+    // Execute immediately
     handleRedirect();
+  }, [pathname, searchParams]);
+
+  // Immediate app opening attempt for mobile devices - MULTIPLE ATTEMPTS
+  useEffect(() => {
+    const platform = detectPlatform();
+    if (platform === 'desktop') return;
+
+    // Parse the URL immediately
+    const parsed = parseUrlPath(pathname);
+    if (!parsed) return;
+
+    const appPath = buildAppPath(parsed.type, parsed.id, parsed.params);
+    if (!appPath) return;
+
+    // Add query parameters
+    const params: DeeplinkParams = { ...parsed.params };
+    if (searchParams) {
+      searchParams.forEach((value, key) => {
+        params[key] = value;
+      });
+    }
+
+    const deeplinkUrl = buildDeeplinkUrl(appPath, params);
+    
+    console.log('RedirectHandler: AGGRESSIVE app opening attempts starting...');
+    console.log('RedirectHandler: Deep link URL:', deeplinkUrl);
+    
+    // Multiple attempts to open the app
+    const attempts = [
+      () => {
+        console.log('RedirectHandler: Attempt 1 - Immediate redirect');
+        window.location.href = deeplinkUrl;
+      },
+      () => {
+        console.log('RedirectHandler: Attempt 2 - After 100ms');
+        setTimeout(() => {
+          window.location.href = deeplinkUrl;
+        }, 100);
+      },
+      () => {
+        console.log('RedirectHandler: Attempt 3 - After 500ms');
+        setTimeout(() => {
+          window.location.href = deeplinkUrl;
+        }, 500);
+      },
+      () => {
+        console.log('RedirectHandler: Attempt 4 - After 1000ms');
+        setTimeout(() => {
+          window.location.href = deeplinkUrl;
+        }, 1000);
+      }
+    ];
+
+    // Execute all attempts
+    attempts.forEach((attempt, index) => {
+      if (index === 0) {
+        // First attempt immediately
+        attempt();
+      } else {
+        // Subsequent attempts with delays
+        setTimeout(attempt, index * 200);
+      }
+    });
+
+    // Also try using window.open as a fallback
+    setTimeout(() => {
+      console.log('RedirectHandler: Attempt 5 - Using window.open');
+      try {
+        window.open(deeplinkUrl, '_self');
+      } catch (error) {
+        console.error('RedirectHandler: window.open failed:', error);
+      }
+    }, 1500);
+
   }, [pathname, searchParams]);
 
   // Show loading state while attempting to open app

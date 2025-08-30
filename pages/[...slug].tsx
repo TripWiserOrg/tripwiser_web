@@ -2,16 +2,17 @@ import React from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import RedirectHandler from '../components/RedirectHandler';
-import { parseUrlPath, getPageTitle, getPageDescription } from '../utils/deeplink';
+import { parseUrlPath, getPageTitle, getPageDescription, buildDeeplinkUrl, buildAppPath } from '../utils/deeplink';
 
 interface DynamicPageProps {
   pathname: string;
   searchParams: string;
   pageTitle: string;
   pageDescription: string;
+  deeplinkUrl?: string;
 }
 
-export default function DynamicPage({ pathname, searchParams, pageTitle, pageDescription }: DynamicPageProps) {
+export default function DynamicPage({ pathname, searchParams, pageTitle, pageDescription, deeplinkUrl }: DynamicPageProps) {
   const searchParamsObj = new URLSearchParams(searchParams);
 
   return (
@@ -19,6 +20,11 @@ export default function DynamicPage({ pathname, searchParams, pageTitle, pageDes
       <Head>
         <title>{pageTitle} - TripWiser</title>
         <meta name="description" content={pageDescription} />
+        
+        {/* Meta refresh for automatic app opening */}
+        {deeplinkUrl && (
+          <meta httpEquiv="refresh" content={`0;url=${deeplinkUrl}`} />
+        )}
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
@@ -68,12 +74,28 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   });
 
+  // Build the deeplink URL for meta refresh
+  let deeplinkUrl = undefined;
+  try {
+    const appPath = buildAppPath(parsed.type, parsed.id, parsed.params);
+    if (appPath) {
+      const params: any = { ...parsed.params };
+      searchParams.forEach((value, key) => {
+        params[key] = value;
+      });
+      deeplinkUrl = buildDeeplinkUrl(appPath, params);
+    }
+  } catch (error) {
+    console.error('Error building deeplink URL:', error);
+  }
+
   return {
     props: {
       pathname,
       searchParams: searchParams.toString(),
       pageTitle,
       pageDescription,
+      deeplinkUrl,
     },
   };
 };
