@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { 
   parseUrlPath, 
   buildDeeplinkUrl, 
-  attemptAppOpen, 
   detectPlatform,
-  getPageTitle,
-  getPageDescription,
   ENV_CONFIG
 } from '../utils/deeplink';
 
@@ -16,17 +13,17 @@ interface RedirectHandlerProps {
 }
 
 export default function RedirectHandler({ pathname, searchParams }: RedirectHandlerProps) {
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [redirectAttempted, setRedirectAttempted] = useState(false);
-  const [debugUrl, setDebugUrl] = useState<string>('');
+  const [deeplinkUrl, setDeeplinkUrl] = useState<string>('');
+  const hasAttemptedRedirect = useRef(false);
   const router = useRouter();
 
-  const handleRedirect = async () => {
+  // Parse URL and build deeplink once on mount
+  useEffect(() => {
+    if (hasAttemptedRedirect.current) return; // Prevent multiple attempts
+    
     console.log('RedirectHandler: Starting redirect process...');
     console.log('RedirectHandler: Pathname:', pathname);
     console.log('RedirectHandler: Search params:', searchParams);
-    console.log('RedirectHandler: Environment config:', ENV_CONFIG);
-    console.log('RedirectHandler: URL Scheme being used:', ENV_CONFIG.URL_SCHEME);
 
     try {
       // Parse the URL path
@@ -40,13 +37,13 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
       }
 
       // Build the deep link URL
-      const deeplinkUrl = buildDeeplinkUrl(
+      const url = buildDeeplinkUrl(
         `${parsedPath.type}/${parsedPath.id}`,
         { ...parsedPath.params, ...searchParams }
       );
       
-      console.log('RedirectHandler: Built deeplink URL:', deeplinkUrl);
-      setDebugUrl(deeplinkUrl);
+      console.log('RedirectHandler: Built deeplink URL:', url);
+      setDeeplinkUrl(url);
 
       // Check if we're on mobile
       const platform = detectPlatform();
@@ -54,129 +51,48 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
 
       if (platform === 'desktop') {
         console.log('RedirectHandler: Desktop detected, showing landing page');
+        hasAttemptedRedirect.current = true;
         return;
       }
 
-      setIsRedirecting(true);
-      setRedirectAttempted(true);
-
-      // Attempt to open the app
-      console.log('RedirectHandler: Attempting to open app...');
-      const appOpened = await attemptAppOpen(deeplinkUrl, 2000);
-
-      if (appOpened) {
-        console.log('RedirectHandler: App opened successfully!');
-        // App opened, we can stay on this page or redirect
-      } else {
-        console.log('RedirectHandler: App did not open, showing fallback');
-        // App didn't open, show fallback
-      }
+      // On mobile, attempt to open the app
+      console.log('RedirectHandler: Mobile detected, attempting to open app...');
+      hasAttemptedRedirect.current = true;
+      
+      // Simple redirect attempt
+      window.location.href = url;
 
     } catch (error) {
       console.error('RedirectHandler: Error during redirect:', error);
-      setIsRedirecting(false);
+      hasAttemptedRedirect.current = true;
+    }
+  }, [pathname, searchParams, router]);
+
+  const handleManualRedirect = () => {
+    if (deeplinkUrl) {
+      console.log('RedirectHandler: Manual redirect to:', deeplinkUrl);
+      window.location.href = deeplinkUrl;
     }
   };
-
-  useEffect(() => {
-    const platform = detectPlatform();
-    if (platform === 'desktop') return;
-
-    console.log('RedirectHandler: AGGRESSIVE app opening attempts starting...');
-    console.log('RedirectHandler: Deep link URL:', debugUrl);
-    console.log('RedirectHandler: Environment config for aggressive attempts:', ENV_CONFIG);
-
-    // Parse URL and build deeplink
-    const parsedPath = parseUrlPath(pathname);
-    if (!parsedPath) {
-      console.log('RedirectHandler: Invalid path, not attempting app open');
-      return;
-    }
-
-    const deeplinkUrl = buildDeeplinkUrl(
-      `${parsedPath.type}/${parsedPath.id}`,
-      { ...parsedPath.params, ...searchParams }
-    );
-    
-    console.log('RedirectHandler: Built deeplink URL for aggressive attempts:', deeplinkUrl);
-    setDebugUrl(deeplinkUrl);
-
-    // Multiple aggressive attempts
-    const attempts = [
-      () => { 
-        console.log('RedirectHandler: Attempt 1 - Immediate window.location.href');
-        window.location.href = deeplinkUrl; 
-      },
-      () => { 
-        console.log('RedirectHandler: Attempt 2 - Delayed window.location.href (100ms)');
-        setTimeout(() => { window.location.href = deeplinkUrl; }, 100); 
-      },
-      () => { 
-        console.log('RedirectHandler: Attempt 3 - Delayed window.location.href (500ms)');
-        setTimeout(() => { window.location.href = deeplinkUrl; }, 500); 
-      },
-      () => { 
-        console.log('RedirectHandler: Attempt 4 - Delayed window.location.href (1000ms)');
-        setTimeout(() => { window.location.href = deeplinkUrl; }, 1000); 
-      }
-    ];
-
-    // Execute attempts with delays
-    attempts.forEach((attempt, index) => {
-      if (index === 0) {
-        attempt();
-      } else {
-        setTimeout(attempt, index * 200);
-      }
-    });
-
-    // Final fallback with window.open
-    setTimeout(() => {
-      console.log('RedirectHandler: Final attempt - window.open');
-      try {
-        window.open(deeplinkUrl, '_self');
-      } catch (error) {
-        console.error('RedirectHandler: window.open failed:', error);
-      }
-    }, 1500);
-
-  }, [pathname, searchParams]);
-
-  // Call handleRedirect immediately
-  useEffect(() => {
-    handleRedirect();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            {isRedirecting ? 'Opening TripWiser...' : 'TripWiser'}
+            TripWiser
           </h1>
           <p className="text-gray-600">
-            {isRedirecting 
-              ? 'Redirecting you to the TripWiser app...' 
-              : 'Your personal travel companion'
-            }
+            Your personal travel companion
           </p>
         </div>
 
-        {isRedirecting && (
-          <div className="mb-6">
-            <div className="spinner-small mx-auto mb-4"></div>
-            <p className="text-sm text-gray-500">
-              If the app doesn't open automatically, please tap the button below
-            </p>
-          </div>
-        )}
-
         <div className="space-y-4">
           <button
-            onClick={handleRedirect}
+            onClick={handleManualRedirect}
             className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
           >
-            {isRedirecting ? 'Try Again' : 'Open in TripWiser App'}
+            Open in TripWiser App
           </button>
 
           <div className="flex space-x-4">
@@ -199,10 +115,10 @@ export default function RedirectHandler({ pathname, searchParams }: RedirectHand
           </div>
         </div>
 
-        {debugUrl && (
+        {deeplinkUrl && (
           <div className="mt-6 p-3 bg-gray-100 rounded-lg">
             <p className="text-xs text-gray-600 mb-1">Debug URL:</p>
-            <p className="text-xs font-mono text-gray-800 break-all">{debugUrl}</p>
+            <p className="text-xs font-mono text-gray-800 break-all">{deeplinkUrl}</p>
           </div>
         )}
       </div>
