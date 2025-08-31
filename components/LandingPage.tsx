@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { APP_CONFIG, buildDeeplinkUrl, detectPlatform, attemptAppOpen } from '../utils/deeplink';
 import Image from 'next/image';
 
 interface LandingPageProps {
@@ -18,19 +17,36 @@ export default function LandingPage({
   deeplinkParams
 }: LandingPageProps) {
   const [isOpening, setIsOpening] = useState(false);
-  const [openAttempted, setOpenAttempted] = useState(false);
   const [debugUrl, setDebugUrl] = useState<string>('');
 
-  const handleOpenApp = async () => {
+  const detectPlatform = (): 'ios' | 'android' | 'desktop' => {
+    if (typeof window === 'undefined') return 'desktop';
+    
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    
+    if (/iphone|ipad|ipod/.test(userAgent)) {
+      return 'ios';
+    } else if (/android/.test(userAgent)) {
+      return 'android';
+    }
+    
+    return 'desktop';
+  };
+
+  const handleOpenApp = () => {
     // Use provided deeplinkPath or default to a test path
     const pathToUse = deeplinkPath || 'trip/test123';
     const paramsToUse = deeplinkParams || { viewOnly: 'true' };
     
     setIsOpening(true);
-    setOpenAttempted(true);
     
     try {
-      const deeplinkUrl = buildDeeplinkUrl(pathToUse, paramsToUse);
+      // Build the deeplink URL
+      const queryString = Object.entries(paramsToUse)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('&');
+      
+      const deeplinkUrl = `tripwiser://${pathToUse}${queryString ? '?' + queryString : ''}`;
       setDebugUrl(deeplinkUrl);
       console.log('Opening app with URL:', deeplinkUrl);
       
@@ -44,16 +60,13 @@ export default function LandingPage({
       }
       
       // On mobile, attempt to open the app
-      const appOpened = await attemptAppOpen(deeplinkUrl, 2000);
+      window.location.href = deeplinkUrl;
       
-      if (!appOpened) {
-        // If app didn't open, show download buttons after a delay
-        setTimeout(() => {
-          setIsOpening(false);
-        }, 500);
-      } else {
+      // Reset after a delay
+      setTimeout(() => {
         setIsOpening(false);
-      }
+      }, 2000);
+      
     } catch (error) {
       console.error('Error opening app:', error);
       setIsOpening(false);
@@ -93,15 +106,7 @@ export default function LandingPage({
             <p className="text-gray-600">{description}</p>
           </div>
 
-          {/* Loading State */}
-          {!openAttempted && (
-            <div className="text-center mb-8">
-              <div className="spinner mx-auto mb-4"></div>
-              <p className="text-gray-600 animate-pulse">Opening TripWiser...</p>
-            </div>
-          )}
-
-          {/* Manual Open App Button - Always Show for Testing */}
+          {/* Manual Open App Button */}
           <div className="text-center mb-6">
             <button
               onClick={handleOpenApp}
@@ -144,7 +149,7 @@ export default function LandingPage({
               
               <div className="flex flex-col sm:flex-row gap-3">
                 <a 
-                  href={APP_CONFIG.androidStoreUrl}
+                  href="https://play.google.com/store/apps/details?id=com.tripwiser.android.app"
                   className="btn btn-primary flex-1"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -156,7 +161,7 @@ export default function LandingPage({
                 </a>
                 
                 <a 
-                  href={APP_CONFIG.iosStoreUrl}
+                  href="https://apps.apple.com/app/tripwiser/MT98B5253F"
                   className="btn btn-secondary flex-1"
                   target="_blank"
                   rel="noopener noreferrer"
