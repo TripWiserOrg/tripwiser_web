@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { debug } from '../utils/debug';
 
 interface LandingPageProps {
   title?: string;
@@ -18,22 +19,42 @@ export default function LandingPage({
 }: LandingPageProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [debugUrl, setDebugUrl] = useState<string>('');
+  const [debugInfo, setDebugInfo] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure we're on client side
+  useEffect(() => {
+    setIsClient(true);
+    setDebugInfo('Component mounted on client side');
+    debug.log('LandingPage component mounted', { isClient: true, isVercel: debug.isVercel() });
+  }, []);
 
   const detectPlatform = (): 'ios' | 'android' | 'desktop' => {
-    if (typeof window === 'undefined') return 'desktop';
+    if (!isClient) return 'desktop';
     
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    
-    if (/iphone|ipad|ipod/.test(userAgent)) {
-      return 'ios';
-    } else if (/android/.test(userAgent)) {
-      return 'android';
+    try {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      setDebugInfo(`User Agent: ${userAgent}`);
+      
+      if (/iphone|ipad|ipod/.test(userAgent)) {
+        return 'ios';
+      } else if (/android/.test(userAgent)) {
+        return 'android';
+      }
+      
+      return 'desktop';
+    } catch (err) {
+      setError(`Platform detection error: ${err}`);
+      return 'desktop';
     }
-    
-    return 'desktop';
   };
 
   const handleOpenApp = () => {
+    setError(''); // Clear previous errors
+    setDebugInfo('Button clicked - starting app opening process');
+    debug.log('Open App button clicked', { deeplinkPath, deeplinkParams });
+    
     // Use provided deeplinkPath or default to a test path
     const pathToUse = deeplinkPath || 'trip/test123';
     const paramsToUse = deeplinkParams || { viewOnly: 'true' };
@@ -48,27 +69,49 @@ export default function LandingPage({
       
       const deeplinkUrl = `tripwiser://${pathToUse}${queryString ? '?' + queryString : ''}`;
       setDebugUrl(deeplinkUrl);
-      console.log('Opening app with URL:', deeplinkUrl);
+      
+      // Production-safe logging
+      if (typeof window !== 'undefined') {
+        console.log('Opening app with URL:', deeplinkUrl);
+        // Also log to a global variable for debugging
+        (window as any).lastDeeplinkUrl = deeplinkUrl;
+      }
+      
+      debug.log('Generated deeplink URL', { deeplinkUrl, platform: detectPlatform() });
+      setDebugInfo(`Generated deeplink: ${deeplinkUrl}`);
       
       const platform = detectPlatform();
+      setDebugInfo(`Platform detected: ${platform}`);
+      
       if (platform === 'desktop') {
+        setDebugInfo('Desktop platform - showing success message');
         // On desktop, just show the button was clicked
         setTimeout(() => {
           setIsOpening(false);
+          setDebugInfo('Desktop flow completed');
         }, 1000);
         return;
       }
       
       // On mobile, attempt to open the app
-      window.location.href = deeplinkUrl;
+      setDebugInfo(`Attempting to open app on ${platform}`);
+      
+      if (typeof window !== 'undefined') {
+        window.location.href = deeplinkUrl;
+      }
       
       // Reset after a delay
       setTimeout(() => {
         setIsOpening(false);
+        setDebugInfo('Mobile app opening attempt completed');
       }, 2000);
       
     } catch (error) {
-      console.error('Error opening app:', error);
+      const errorMsg = `Error opening app: ${error}`;
+      console.error(errorMsg);
+      debug.error('Error in handleOpenApp', error);
+      setError(errorMsg);
+      setDebugInfo(`Error occurred: ${error}`);
       setIsOpening(false);
     }
   };
@@ -128,14 +171,32 @@ export default function LandingPage({
               )}
             </button>
             <p className="text-sm text-gray-500">
-              {detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app'}
+              {isClient ? (detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app') : 'Loading...'}
             </p>
             
-            {/* Debug URL Display */}
-            {debugUrl && (
+            {/* Debug Information Display */}
+            {(debugUrl || debugInfo || error) && (
               <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-                <p className="text-xs text-gray-600 mb-2">Debug URL:</p>
-                <p className="text-xs font-mono text-gray-800 break-all">{debugUrl}</p>
+                <p className="text-xs text-gray-600 mb-2">Debug Information:</p>
+                
+                {error && (
+                  <p className="text-xs text-red-600 mb-2">Error: {error}</p>
+                )}
+                
+                {debugInfo && (
+                  <p className="text-xs text-blue-600 mb-2">Info: {debugInfo}</p>
+                )}
+                
+                {debugUrl && (
+                  <>
+                    <p className="text-xs text-gray-600 mb-2">Debug URL:</p>
+                    <p className="text-xs font-mono text-gray-800 break-all">{debugUrl}</p>
+                  </>
+                )}
+                
+                <p className="text-xs text-gray-500 mt-2">
+                  Client: {isClient ? 'Yes' : 'No'} | Platform: {isClient ? detectPlatform() : 'Unknown'}
+                </p>
               </div>
             )}
           </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import LandingPage from '../components/LandingPage';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function HomePage() {
   // Updated: Added comment to trigger deployment with environment variables
@@ -25,13 +26,15 @@ export default function HomePage() {
         <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
       </Head>
       
-      <LandingPage 
-        title="Welcome to TripWiser"
-        description="Your personal travel companion"
-        showDownloadButtons={true}
-        deeplinkPath="trip/test123"
-        deeplinkParams={{ viewOnly: 'true' }}
-      />
+      <ErrorBoundary>
+        <LandingPage 
+          title="Welcome to TripWiser"
+          description="Your personal travel companion"
+          showDownloadButtons={true}
+          deeplinkPath="trip/test123"
+          deeplinkParams={{ viewOnly: 'true' }}
+        />
+      </ErrorBoundary>
     </>
   );
 }
