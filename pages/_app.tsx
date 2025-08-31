@@ -16,22 +16,22 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:url" content="https://tripwiser-web-lmgo.vercel.app/" />
         <meta property="og:title" content="TripWiser" />
         <meta property="og:description" content="Your personal travel companion. Plan trips, pack smart, and capture memories." />
-        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
+        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://tripwiser-web-lmgo.vercel.app/" />
         <meta property="twitter:title" content="TripWiser" />
         <meta property="twitter:description" content="Your personal travel companion. Plan trips, pack smart, and capture memories." />
-        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
+        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
         
         {/* App Store Meta Tags */}
         <meta name="apple-itunes-app" content="app-id=MT98B5253F" />
         <meta name="google-play-app" content="app-id=com.tripwiser.android.app" />
         
         <title>TripWiser - Your Travel Companion</title>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/branding/logo.png" />
+        <link rel="apple-touch-icon" href="/branding/logo.png" />
       </Head>
       <Component {...pageProps} />
     </>

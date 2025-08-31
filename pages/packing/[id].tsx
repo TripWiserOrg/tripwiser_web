@@ -29,17 +29,17 @@ export default function PackingPage({ tripId, viewOnly, packingListId }: Packing
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://tripwiser.app/packing/${tripId}`} />
+        <meta property="og:url" content={`https://tripwiser-web-lmgo.vercel.app/packing/${tripId}`} />
         <meta property="og:title" content="Packing List - TripWiser" />
         <meta property="og:description" content="View packing list in TripWiser" />
-        <meta property="og:image" content="https://tripwiser.app/og-image.png" />
+        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content={`https://tripwiser.app/packing/${tripId}`} />
+        <meta property="twitter:url" content={`https://tripwiser-web-lmgo.vercel.app/packing/${tripId}`} />
         <meta property="twitter:title" content="Packing List - TripWiser" />
         <meta property="twitter:description" content="View packing list in TripWiser" />
-        <meta property="twitter:image" content="https://tripwiser.app/og-image.png" />
+        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
       </Head>
       
       <RedirectHandler pathname={pathname} searchParams={searchParams} />

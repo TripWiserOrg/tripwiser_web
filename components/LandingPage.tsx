@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { APP_CONFIG, buildDeeplinkUrl, detectPlatform, attemptAppOpen } from '../utils/deeplink';
+import Image from 'next/image';
 
 interface LandingPageProps {
   title?: string;
@@ -60,15 +61,33 @@ export default function LandingPage({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="card animate-fade-in">
+    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/branding/login_bg.jpg"
+          alt="TripWiser Background"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      </div>
+
+      <div className="max-w-md w-full relative z-10">
+        <div className="card animate-fade-in bg-white bg-opacity-95 backdrop-blur-sm">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
+            <div className="mb-6">
+              <Image
+                src="/branding/logo.png"
+                alt="TripWiser Logo"
+                width={80}
+                height={80}
+                className="mx-auto"
+                priority
+              />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
             <p className="text-gray-600">{description}</p>

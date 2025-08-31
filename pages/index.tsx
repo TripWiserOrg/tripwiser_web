@@ -15,14 +15,14 @@ export default function HomePage() {
         <meta property="og:url" content="https://tripwiser-web-lmgo.vercel.app/" />
         <meta property="og:title" content="TripWiser - Your Travel Companion" />
         <meta property="og:description" content="Your personal travel companion. Plan trips, pack smart, and capture memories." />
-        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
+        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://tripwiser-web-lmgo.vercel.app/" />
         <meta property="twitter:title" content="TripWiser - Your Travel Companion" />
         <meta property="twitter:description" content="Your personal travel companion. Plan trips, pack smart, and capture memories." />
-        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
+        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
       </Head>
       
       <LandingPage 

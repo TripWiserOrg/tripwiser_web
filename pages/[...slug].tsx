@@ -36,14 +36,14 @@ export default function DynamicPage({ pathname, searchParams, pageTitle, pageDes
         <meta property="og:url" content={`https://tripwiser-web-lmgo.vercel.app${pathname}`} />
         <meta property="og:title" content={`${pageTitle} - TripWiser`} />
         <meta property="og:description" content={pageDescription} />
-        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
+        <meta property="og:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content={`https://tripwiser-web-lmgo.vercel.app${pathname}`} />
         <meta property="twitter:title" content={`${pageTitle} - TripWiser`} />
         <meta property="twitter:description" content={pageDescription} />
-        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/og-image.png" />
+        <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
       </Head>
       
       <RedirectHandler pathname={pathname} searchParams={searchParamsObj} />

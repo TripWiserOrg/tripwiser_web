@@ -12,7 +12,7 @@ export interface DeeplinkParams {
   [key: string]: string | boolean | undefined;
 }
 
-// Hardcoded values for testing - bypass environment variables
+// Completely hardcoded values - no environment variables at all
 export const ENV_CONFIG = {
   APP_URL: 'https://tripwiser-web-lmgo.vercel.app/',
   BACKEND_URL: 'https://tripwiser-backend.onrender.com',
@@ -21,24 +21,22 @@ export const ENV_CONFIG = {
   ANDROID_PACKAGE: 'com.tripwiser.android.app',
   IOS_BUNDLE_ID: 'com.tripwiser.app',
   URL_SCHEME: 'tripwiser://',
-  GA_TRACKING_ID: process.env.NEXT_PUBLIC_GA_TRACKING_ID || '',
-  FACEBOOK_PIXEL_ID: process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || ''
+  GA_TRACKING_ID: '',
+  FACEBOOK_PIXEL_ID: ''
 };
 
-
-
 export const APP_CONFIG = {
-  androidPackage: ENV_CONFIG.ANDROID_PACKAGE,
-  iosBundleId: ENV_CONFIG.IOS_BUNDLE_ID,
-  urlScheme: ENV_CONFIG.URL_SCHEME,
-  androidStoreUrl: ENV_CONFIG.ANDROID_STORE_URL,
-  iosStoreUrl: ENV_CONFIG.IOS_STORE_URL,
-  backendUrl: ENV_CONFIG.BACKEND_URL,
+  androidPackage: 'com.tripwiser.android.app',
+  iosBundleId: 'com.tripwiser.app',
+  urlScheme: 'tripwiser://',
+  androidStoreUrl: 'https://play.google.com/store/apps/details?id=com.tripwiser.android.app',
+  iosStoreUrl: 'https://apps.apple.com/app/tripwiser/MT98B5253F',
+  backendUrl: 'https://tripwiser-backend.onrender.com',
 };
 
 export function buildDeeplinkUrl(path: string, params?: DeeplinkParams): string {
-  const url = new URL(APP_CONFIG.urlScheme + path);
-  console.log('buildDeeplinkUrl: Base URL:', APP_CONFIG.urlScheme + path);
+  const url = new URL('tripwiser://' + path);
+  console.log('buildDeeplinkUrl: Base URL:', 'tripwiser://' + path);
   
   if (params) {
     console.log('buildDeeplinkUrl: Adding params:', params);
@@ -70,7 +68,7 @@ export function detectPlatform(): 'ios' | 'android' | 'desktop' {
 
 export function getStoreUrl(): string {
   const platform = detectPlatform();
-  return platform === 'ios' ? APP_CONFIG.iosStoreUrl : APP_CONFIG.androidStoreUrl;
+  return platform === 'ios' ? 'https://apps.apple.com/app/tripwiser/MT98B5253F' : 'https://play.google.com/store/apps/details?id=com.tripwiser.android.app';
 }
 
 export function attemptAppOpen(deeplinkUrl: string, timeoutMs: number = 2000): Promise<boolean> {
