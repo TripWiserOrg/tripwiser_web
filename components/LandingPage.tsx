@@ -18,6 +18,7 @@ export default function LandingPage({
 }: LandingPageProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [hasAttemptedAutoOpen, setHasAttemptedAutoOpen] = useState(false);
 
   // Ensure we're on client side
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function LandingPage({
     return 'desktop';
   };
 
-  const handleOpenApp = () => {
+  const openApp = () => {
     setIsOpening(true);
     
     try {
@@ -76,6 +77,24 @@ export default function LandingPage({
       console.error('Error opening app:', error);
       setIsOpening(false);
     }
+  };
+
+  // Auto-open app when component mounts (only on mobile and if we have a deeplink path)
+  useEffect(() => {
+    if (isClient && !hasAttemptedAutoOpen && deeplinkPath) {
+      const platform = detectPlatform();
+      if (platform !== 'desktop') {
+        setHasAttemptedAutoOpen(true);
+        // Small delay to ensure the page is fully loaded
+        setTimeout(() => {
+          openApp();
+        }, 500);
+      }
+    }
+  }, [isClient, hasAttemptedAutoOpen, deeplinkPath]);
+
+  const handleOpenApp = () => {
+    openApp();
   };
 
   return (
