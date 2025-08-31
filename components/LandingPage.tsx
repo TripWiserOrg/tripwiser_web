@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { debug } from '../utils/debug';
 
 interface LandingPageProps {
   title?: string;
@@ -18,111 +17,52 @@ export default function LandingPage({
   deeplinkParams
 }: LandingPageProps) {
   const [isOpening, setIsOpening] = useState(false);
-  const [debugUrl, setDebugUrl] = useState<string>('');
-  const [debugInfo, setDebugInfo] = useState<string>('');
-  const [error, setError] = useState<string>('');
   const [isClient, setIsClient] = useState(false);
 
   // Ensure we're on client side
   useEffect(() => {
     setIsClient(true);
-    setDebugInfo('Component mounted on client side');
-    debug.log('LandingPage component mounted', { isClient: true, isVercel: debug.isVercel() });
-    
-    // Add error listeners for debugging
-    const handleError = (event: ErrorEvent) => {
-      debug.error('Unhandled error', {
-        message: event.message,
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-        error: event.error
-      });
-    };
-    
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      debug.error('Unhandled promise rejection', {
-        reason: event.reason,
-        promise: event.promise
-      });
-    };
-    
-    window.addEventListener('error', handleError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-    
-    // Cleanup listeners on unmount
-    return () => {
-      window.removeEventListener('error', handleError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-    };
   }, []);
 
   const detectPlatform = (): 'ios' | 'android' | 'desktop' => {
     if (!isClient) return 'desktop';
     
-    try {
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      setDebugInfo(`User Agent: ${userAgent}`);
-      
-      if (/iphone|ipad|ipod/.test(userAgent)) {
-        return 'ios';
-      } else if (/android/.test(userAgent)) {
-        return 'android';
-      }
-      
-      return 'desktop';
-    } catch (err) {
-      setError(`Platform detection error: ${err}`);
-      return 'desktop';
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    
+    if (/iphone|ipad|ipod/.test(userAgent)) {
+      return 'ios';
+    } else if (/android/.test(userAgent)) {
+      return 'android';
     }
+    
+    return 'desktop';
   };
 
   const handleOpenApp = () => {
-    setError(''); // Clear previous errors
-    setDebugInfo('Button clicked - starting app opening process');
-    debug.log('Open App button clicked', { deeplinkPath, deeplinkParams });
-    
-    // Use provided deeplinkPath or default to a test path
-    const pathToUse = deeplinkPath || 'trip/test123';
-    const paramsToUse = deeplinkParams || { viewOnly: 'true' };
-    
     setIsOpening(true);
     
     try {
-      // Build the deeplink URL
+      // Build the deeplink URL using provided path and params
+      const pathToUse = deeplinkPath || '';
+      const paramsToUse = deeplinkParams || {};
+      
       const queryString = Object.entries(paramsToUse)
         .map(([key, value]) => `${key}=${value}`)
         .join('&');
       
       const deeplinkUrl = `tripwiser://${pathToUse}${queryString ? '?' + queryString : ''}`;
-      setDebugUrl(deeplinkUrl);
-      
-      // Production-safe logging
-      if (typeof window !== 'undefined') {
-        console.log('Opening app with URL:', deeplinkUrl);
-        // Also log to a global variable for debugging
-        (window as any).lastDeeplinkUrl = deeplinkUrl;
-      }
-      
-      debug.log('Generated deeplink URL', { deeplinkUrl, platform: detectPlatform() });
-      setDebugInfo(`Generated deeplink: ${deeplinkUrl}`);
       
       const platform = detectPlatform();
-      setDebugInfo(`Platform detected: ${platform}`);
       
       if (platform === 'desktop') {
-        setDebugInfo('Desktop platform - showing success message');
         // On desktop, just show the button was clicked
         setTimeout(() => {
           setIsOpening(false);
-          setDebugInfo('Desktop flow completed');
         }, 1000);
         return;
       }
       
       // On mobile, attempt to open the app
-      setDebugInfo(`Attempting to open app on ${platform}`);
-      
       if (typeof window !== 'undefined') {
         window.location.href = deeplinkUrl;
       }
@@ -130,15 +70,10 @@ export default function LandingPage({
       // Reset after a delay
       setTimeout(() => {
         setIsOpening(false);
-        setDebugInfo('Mobile app opening attempt completed');
       }, 2000);
       
     } catch (error) {
-      const errorMsg = `Error opening app: ${error}`;
-      console.error(errorMsg);
-      debug.error('Error in handleOpenApp', error);
-      setError(errorMsg);
-      setDebugInfo(`Error occurred: ${error}`);
+      console.error('Error opening app:', error);
       setIsOpening(false);
     }
   };
@@ -193,7 +128,7 @@ export default function LandingPage({
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                   </svg>
-                  {deeplinkPath ? 'Open in TripWiser App' : 'Test Open App'}
+                  {deeplinkPath ? 'Open in TripWiser App' : 'Open TripWiser App'}
                 </>
               )}
             </button>
@@ -201,29 +136,19 @@ export default function LandingPage({
               {isClient ? (detectPlatform() === 'desktop' ? 'Click to open TripWiser app' : 'Tap to open TripWiser app') : 'Loading...'}
             </p>
             
-            {/* Debug Information Display */}
-            {(debugUrl || debugInfo || error) && (
+            {/* Show current deeplink info */}
+            {deeplinkPath && (
               <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-                <p className="text-xs text-gray-600 mb-2">Debug Information:</p>
-                
-                {error && (
-                  <p className="text-xs text-red-600 mb-2">Error: {error}</p>
-                )}
-                
-                {debugInfo && (
-                  <p className="text-xs text-blue-600 mb-2">Info: {debugInfo}</p>
-                )}
-                
-                {debugUrl && (
+                <p className="text-xs text-gray-600 mb-2">Current Path:</p>
+                <p className="text-xs font-mono text-gray-800 break-all">{deeplinkPath}</p>
+                {Object.keys(deeplinkParams || {}).length > 0 && (
                   <>
-                    <p className="text-xs text-gray-600 mb-2">Debug URL:</p>
-                    <p className="text-xs font-mono text-gray-800 break-all">{debugUrl}</p>
+                    <p className="text-xs text-gray-600 mb-2 mt-2">Parameters:</p>
+                    <p className="text-xs font-mono text-gray-800 break-all">
+                      {JSON.stringify(deeplinkParams)}
+                    </p>
                   </>
                 )}
-                
-                <p className="text-xs text-gray-500 mt-2">
-                  Client: {isClient ? 'Yes' : 'No'} | Platform: {isClient ? detectPlatform() : 'Unknown'}
-                </p>
               </div>
             )}
           </div>

@@ -1,10 +1,27 @@
 import React from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import LandingPage from '../components/LandingPage';
-import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function HomePage() {
-  // Updated: Added comment to trigger deployment with environment variables
+  const router = useRouter();
+  
+  // Extract path and query parameters from the URL
+  const pathSegments = router.asPath.split('?')[0].split('/').filter(Boolean);
+  const queryParams = router.query;
+  
+  // Determine the deeplink path from URL segments
+  let deeplinkPath = '';
+  if (pathSegments.length > 0) {
+    deeplinkPath = pathSegments.join('/');
+  }
+  
+  // Convert query parameters to the format expected by LandingPage
+  const deeplinkParams = Object.keys(queryParams).reduce((acc, key) => {
+    acc[key] = queryParams[key] as string;
+    return acc;
+  }, {} as Record<string, string>);
+
   return (
     <>
       <Head>
@@ -26,15 +43,13 @@ export default function HomePage() {
         <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
       </Head>
       
-      <ErrorBoundary>
-        <LandingPage 
-          title="Welcome to TripWiser"
-          description="Your personal travel companion"
-          showDownloadButtons={true}
-          deeplinkPath="trip/test123"
-          deeplinkParams={{ viewOnly: 'true' }}
-        />
-      </ErrorBoundary>
+      <LandingPage 
+        title="Welcome to TripWiser"
+        description="Your personal travel companion"
+        showDownloadButtons={true}
+        deeplinkPath={deeplinkPath}
+        deeplinkParams={deeplinkParams}
+      />
     </>
   );
 }
