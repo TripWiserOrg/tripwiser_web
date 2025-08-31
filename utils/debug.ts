@@ -90,29 +90,3 @@ export const debug = {
     return null;
   }
 };
-
-// Auto-log environment info on load
-if (typeof window !== 'undefined') {
-  window.addEventListener('load', () => {
-    debug.log('Page loaded', debug.getEnvironmentInfo());
-  });
-
-  // Log any unhandled errors
-  window.addEventListener('error', (event) => {
-    debug.error('Unhandled error', {
-      message: event.message,
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-      error: event.error
-    });
-  });
-
-  // Log unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
-    debug.error('Unhandled promise rejection', {
-      reason: event.reason,
-      promise: event.promise
-    });
-  });
-}

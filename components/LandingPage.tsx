@@ -28,6 +28,33 @@ export default function LandingPage({
     setIsClient(true);
     setDebugInfo('Component mounted on client side');
     debug.log('LandingPage component mounted', { isClient: true, isVercel: debug.isVercel() });
+    
+    // Add error listeners for debugging
+    const handleError = (event: ErrorEvent) => {
+      debug.error('Unhandled error', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+      });
+    };
+    
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      debug.error('Unhandled promise rejection', {
+        reason: event.reason,
+        promise: event.promise
+      });
+    };
+    
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    // Cleanup listeners on unmount
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, []);
 
   const detectPlatform = (): 'ios' | 'android' | 'desktop' => {
