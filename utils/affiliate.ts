@@ -136,18 +136,24 @@ export function openAppWithFallback(deepLink: string): void {
         // App didn't open, redirect to App Store
         window.location.href = getAppStoreUrl('ios');
       }
-    }, 1000);
+    }, 1500);
   } else if (platform === 'android') {
-    // Android app detection
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = deepLink;
-    document.body.appendChild(iframe);
-    
-    // Fallback after delay
-    setTimeout(() => {
+    // Android app detection - use simpler approach
+    try {
+      // Try to open the app directly
+      window.location.href = deepLink;
+      
+      // Fallback after delay if app doesn't open
+      setTimeout(() => {
+        // Only redirect if we're still on the same page
+        if (document.visibilityState === 'visible') {
+          window.location.href = getAppStoreUrl('android');
+        }
+      }, 2500);
+    } catch (error) {
+      // If direct redirect fails, go to app store
       window.location.href = getAppStoreUrl('android');
-    }, 2000);
+    }
   } else {
     // Desktop - show QR code or direct to app store
     console.log('Desktop detected - deep link:', deepLink);

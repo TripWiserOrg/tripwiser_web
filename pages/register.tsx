@@ -41,10 +41,10 @@ export default function RegisterPage() {
       const platform = detectPlatform();
       if (platform !== 'desktop') {
         setHasAttemptedAutoOpen(true);
-        // Small delay to ensure the page is fully loaded
+        // Longer delay to ensure the page is fully loaded and user sees the content
         setTimeout(() => {
           openApp();
-        }, 500);
+        }, 2000);
       }
     }
   }, [isClient, hasAttemptedAutoOpen, deepLinkUrl]);
