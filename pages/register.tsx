@@ -132,7 +132,7 @@ export default function RegisterPage() {
         <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
         
         {/* App Store Meta Tags */}
-        <meta name="apple-itunes-app" content="app-id=MT98B5253F" />
+        <meta name="apple-itunes-app" content="app-id=6751107025" />
         <meta name="google-play-app" content="app-id=com.tripwiser.android.app" />
       </Head>
       
@@ -221,8 +221,8 @@ export default function RegisterPage() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <a 
-                  href="https://apps.apple.com/app/tripwiser/MT98B5253F"
+                <a
+                  href="https://apps.apple.com/us/app/tripwiser-social-travel/id6751107025"
                   className="flex-1 flex items-center justify-center gap-3 bg-black hover:bg-gray-800 text-white py-4 px-6 rounded-xl font-medium transition-all hover:scale-105"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -235,8 +235,8 @@ export default function RegisterPage() {
                     <div className="text-base font-semibold">App Store</div>
                   </div>
                 </a>
-                
-                <a 
+
+                <a
                   href="https://play.google.com/store/apps/details?id=com.tripwiser.android.app"
                   className="flex-1 flex items-center justify-center gap-3 bg-gray-900 hover:bg-gray-800 text-white py-4 px-6 rounded-xl font-medium transition-all hover:scale-105"
                   target="_blank"

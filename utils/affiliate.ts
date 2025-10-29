@@ -90,7 +90,7 @@ export function validateAffiliateData(affiliateData: AffiliateData | null): bool
  */
 export function getAppStoreUrl(platform: 'ios' | 'android'): string {
   if (platform === 'ios') {
-    return "https://apps.apple.com/app/tripwiser/MT98B5253F";
+    return "https://apps.apple.com/us/app/tripwiser-social-travel/id6751107025";
   } else {
     return "https://play.google.com/store/apps/details?id=com.tripwiser.android.app";
   }
@@ -118,42 +118,55 @@ export function detectPlatform(): 'ios' | 'android' | 'desktop' {
  */
 export function openAppWithFallback(deepLink: string): void {
   const platform = detectPlatform();
-  
+
   if (platform === 'ios') {
     // iOS app detection
-    const startTime = Date.now();
-    
-    // Try to open the app
-    window.location.href = deepLink;
-    
-    // Check if app opened (iOS will pause the page)
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = deepLink;
+    document.body.appendChild(iframe);
+
+    // Set a flag when page becomes hidden (app is opening)
+    let appOpened = false;
+    const visibilityHandler = () => {
+      if (document.visibilityState === 'hidden') {
+        appOpened = true;
+      }
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
+
+    // Fallback to App Store if app doesn't open
     setTimeout(() => {
-      const timeDiff = Date.now() - startTime;
-      if (timeDiff < 2000) {
-        // App likely opened, page was paused
-        return;
-      } else {
-        // App didn't open, redirect to App Store
+      document.removeEventListener('visibilitychange', visibilityHandler);
+      document.body.removeChild(iframe);
+
+      if (!appOpened) {
         window.location.href = getAppStoreUrl('ios');
       }
-    }, 1500);
+    }, 2500);
   } else if (platform === 'android') {
-    // Android app detection - use simpler approach
-    try {
-      // Try to open the app directly
-      window.location.href = deepLink;
-      
-      // Fallback after delay if app doesn't open
-      setTimeout(() => {
-        // Only redirect if we're still on the same page
-        if (document.visibilityState === 'visible') {
-          window.location.href = getAppStoreUrl('android');
-        }
-      }, 2500);
-    } catch (error) {
-      // If direct redirect fails, go to app store
-      window.location.href = getAppStoreUrl('android');
-    }
+    // Android app detection
+    let appOpened = false;
+
+    // Try to open the app
+    window.location.href = deepLink;
+
+    // Track if page becomes hidden (app is opening)
+    const visibilityHandler = () => {
+      if (document.visibilityState === 'hidden') {
+        appOpened = true;
+      }
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
+
+    // Fallback to Play Store after delay if app doesn't open
+    setTimeout(() => {
+      document.removeEventListener('visibilitychange', visibilityHandler);
+
+      if (!appOpened && document.visibilityState === 'visible') {
+        window.location.href = getAppStoreUrl('android');
+      }
+    }, 2500);
   } else {
     // Desktop - show QR code or direct to app store
     console.log('Desktop detected - deep link:', deepLink);

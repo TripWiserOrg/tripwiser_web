@@ -2,13 +2,15 @@ import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { detectPlatform, getAppStoreUrl } from '../utils/affiliate';
 
 export default function RedirectPage() {
   const router = useRouter();
   const [deeplinkUrl, setDeeplinkUrl] = useState<string>('');
+  const [hasAttemptedRedirect, setHasAttemptedRedirect] = useState(false);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady || hasAttemptedRedirect) return;
 
     // Get the full path including query parameters
     const path = router.asPath;
@@ -19,29 +21,85 @@ export default function RedirectPage() {
 
     // Build the deeplink URL
     const appUrl = `tripwiser://${path}${queryString ? '?' + queryString : ''}`;
-    
+
     console.log('Simple redirect - Path:', path);
     console.log('Simple redirect - Query string:', queryString);
     console.log('Simple redirect - App URL:', appUrl);
-    
+
     setDeeplinkUrl(appUrl);
 
     // Detect platform
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isMobile = /iphone|ipad|ipod|android/.test(userAgent);
-    
+    const platform = detectPlatform();
+    const isMobile = platform === 'ios' || platform === 'android';
+
     if (isMobile) {
       console.log('Simple redirect - Mobile detected, redirecting to app');
-      window.location.href = appUrl;
+      setHasAttemptedRedirect(true);
+
+      // Track if app opened
+      let appOpened = false;
+      const visibilityHandler = () => {
+        if (document.visibilityState === 'hidden') {
+          appOpened = true;
+        }
+      };
+      document.addEventListener('visibilitychange', visibilityHandler);
+
+      // Try to open the app
+      if (platform === 'ios') {
+        // Use iframe for iOS
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = appUrl;
+        document.body.appendChild(iframe);
+
+        // Fallback to App Store
+        setTimeout(() => {
+          document.removeEventListener('visibilitychange', visibilityHandler);
+          if (iframe.parentNode) {
+            document.body.removeChild(iframe);
+          }
+
+          if (!appOpened) {
+            console.log('App not opened, redirecting to App Store');
+            window.location.href = getAppStoreUrl('ios');
+          }
+        }, 2500);
+      } else {
+        // Direct redirect for Android
+        window.location.href = appUrl;
+
+        // Fallback to Play Store
+        setTimeout(() => {
+          document.removeEventListener('visibilitychange', visibilityHandler);
+
+          if (!appOpened && document.visibilityState === 'visible') {
+            console.log('App not opened, redirecting to Play Store');
+            window.location.href = getAppStoreUrl('android');
+          }
+        }, 2500);
+      }
     } else {
       console.log('Simple redirect - Desktop detected, showing landing page');
     }
-  }, [router.isReady, router.asPath, router.query]);
+  }, [router.isReady, router.asPath, router.query, hasAttemptedRedirect]);
 
   const handleRedirect = () => {
     if (deeplinkUrl) {
       console.log('Simple redirect - Manual redirect to:', deeplinkUrl);
+
+      const platform = detectPlatform();
+
+      // Try to open the app
       window.location.href = deeplinkUrl;
+
+      // Fallback to store if on mobile
+      if (platform === 'ios' || platform === 'android') {
+        setTimeout(() => {
+          const storeUrl = getAppStoreUrl(platform);
+          window.location.href = storeUrl;
+        }, 2500);
+      }
     }
   };
 
@@ -93,7 +151,7 @@ export default function RedirectPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <a
-                  href="https://apps.apple.com/app/tripwiser/MT98B5253F"
+                  href="https://apps.apple.com/us/app/tripwiser-social-travel/id6751107025"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 bg-black hover:bg-gray-800 text-white py-3 px-4 rounded-xl text-sm font-medium transition-all hover:scale-105"

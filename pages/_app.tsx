@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="twitter:image" content="https://tripwiser-web-lmgo.vercel.app/branding/logo.png" />
         
         {/* App Store Meta Tags */}
-        <meta name="apple-itunes-app" content="app-id=MT98B5253F" />
+        <meta name="apple-itunes-app" content="app-id=6751107025" />
         <meta name="google-play-app" content="app-id=com.tripwiser.android.app" />
         
         <title>TripWiser - Your Travel Companion</title>
