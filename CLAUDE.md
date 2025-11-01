@@ -100,10 +100,12 @@ Handled by `pages/register.tsx`:
 
 ### Auto-Redirect Behavior
 
-- **Mobile (iOS/Android)**: Automatically attempts to open app after 2-second delay on page load
+- **Mobile (iOS/Android)**: Automatically attempts to open app on page load
 - **Desktop**: Shows landing page with download buttons, no auto-redirect
-- **Fallback**: If app doesn't open within timeout, redirects to App Store (iOS) or Google Play (Android)
-- **Manual Override**: All pages include "Click here to open manually" button
+- **Fallback Detection**: Uses `visibilitychange` event to detect if app opened (page becomes hidden)
+  - **iOS**: Uses hidden iframe technique with 2.5s timeout, then redirects to App Store
+  - **Android**: Direct redirect with 2.5s timeout, then redirects to Play Store
+- **Manual Override**: All pages include "Click here to open manually" button with same fallback logic
 
 ## Universal Links Configuration
 
@@ -121,7 +123,7 @@ Both files served via Vercel configuration in `vercel.json`.
 
 ## App Store URLs
 
-- **iOS**: https://apps.apple.com/app/tripwiser/MT98B5253F
+- **iOS**: https://apps.apple.com/us/app/tripwiser-social-travel/id6751107025
 - **Android**: https://play.google.com/store/apps/details?id=com.tripwiser.android.app
 
 ## Important Technical Details
