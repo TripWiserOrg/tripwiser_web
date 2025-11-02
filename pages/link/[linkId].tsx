@@ -144,7 +144,8 @@ export async function getServerSideProps(context: any) {
 
   try {
     // Fetch link data from your backend
-    const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    // const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const apiUrl = "https://tripwiser-backend-dev.onrender.com/api"
     const response = await fetch(`${apiUrl}/affiliate/link/${linkId}`);
 
     if (!response.ok) {
