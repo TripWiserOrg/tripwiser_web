@@ -34,6 +34,7 @@ export async function trackAttributionClick(
       },
       body: JSON.stringify({
         fingerprintData: data.fingerprint,
+        platform: data.fingerprint.platform,
         affiliateType: data.affiliateType,
         influencerId: data.influencerId,
         linkId: data.linkId,
