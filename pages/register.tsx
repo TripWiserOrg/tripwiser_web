@@ -49,15 +49,17 @@ export default function RegisterPage() {
     }
   }, [isClient, hasAttemptedAutoOpen, deepLinkUrl]);
 
-  const openApp = () => {
+  const openApp = async () => {
     setIsOpening(true);
-    
+
     try {
-      // Track affiliate click
-      trackAffiliateClick(affiliateData);
-      
+      // Track affiliate click with fingerprint
+      console.log('Starting attribution tracking...');
+      await trackAffiliateClick(affiliateData);
+      console.log('Attribution tracking completed');
+
       const platform = detectPlatform();
-      
+
       if (platform === 'desktop') {
         // On desktop, just show the button was clicked
         setTimeout(() => {
@@ -65,17 +67,17 @@ export default function RegisterPage() {
         }, 1000);
         return;
       }
-      
+
       // On mobile, use advanced app detection with fallback
       if (typeof window !== 'undefined' && deepLinkUrl) {
         openAppWithFallback(deepLinkUrl);
       }
-      
+
       // Reset after a delay
       setTimeout(() => {
         setIsOpening(false);
       }, 2000);
-      
+
     } catch (error) {
       console.error('Error opening app:', error);
       setIsOpening(false);
