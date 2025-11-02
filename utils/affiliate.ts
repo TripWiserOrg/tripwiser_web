@@ -205,20 +205,25 @@ trackAffiliateClick(affiliateData: AffiliateData | null): Promise<void> {
       const { generateDeviceFingerprint } = await import('./deviceFingerprint');
       const { trackAttributionClick } = await import('./attributionApi');
 
+      console.log('🔷 Generating device fingerprint...');
       const fingerprint = generateDeviceFingerprint();
+      console.log('✅ Device fingerprint generated:', JSON.stringify(fingerprint, null, 2));
 
-      console.log('Sending attribution tracking with fingerprint:', fingerprint);
+      const affiliateType = (affiliateData.type === 'elite' ? 'elite_gift' : 'influencer_referral') as 'elite_gift' | 'influencer_referral';
 
-      const result = await trackAttributionClick({
+      const payload = {
         fingerprint,
-        affiliateType: affiliateData.type === 'elite' ? 'elite_gift' : 'influencer_referral',
+        affiliateType,
         influencerId: affiliateData.influencerId,
         linkId: affiliateData.linkId,
-      });
+      };
+      console.log('🔷 Sending attribution tracking with payload:', JSON.stringify(payload, null, 2));
 
-      console.log('Attribution tracking result:', result);
+      const result = await trackAttributionClick(payload);
+
+      console.log('✅ Attribution tracking result:', JSON.stringify(result, null, 2));
     } catch (error) {
-      console.error('Failed to send attribution tracking:', error);
+      console.error('❌ Failed to send attribution tracking:', error);
       // Don't throw - we don't want to block the user flow if tracking fails
     }
   }

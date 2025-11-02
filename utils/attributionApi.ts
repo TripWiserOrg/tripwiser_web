@@ -33,11 +33,15 @@ export async function trackAttributionClick(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fingerprintData: data.fingerprint,
-        platform: data.fingerprint.platform,
         affiliateType: data.affiliateType,
         influencerId: data.influencerId,
         linkId: data.linkId,
+        platform: data.fingerprint.platform,
+        osVersion: data.fingerprint.osVersion,
+        deviceModel: data.fingerprint.deviceModel,
+        screenResolution: data.fingerprint.screenResolution,
+        timezone: data.fingerprint.timezone,
+        language: data.fingerprint.language,
       }),
     });
 

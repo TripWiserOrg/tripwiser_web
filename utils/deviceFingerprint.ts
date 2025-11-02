@@ -5,7 +5,6 @@ export interface DeviceFingerprint {
   screenResolution: string;
   timezone: string;
   language: string;
-  userAgent?: string;
 }
 
 /**
@@ -66,7 +65,6 @@ export function generateDeviceFingerprint(): DeviceFingerprint {
     screenResolution,
     timezone,
     language,
-    userAgent,
   };
 }
 
