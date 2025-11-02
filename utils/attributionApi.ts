@@ -37,11 +37,7 @@ export async function trackAttributionClick(
         influencerId: data.influencerId,
         linkId: data.linkId,
         platform: data.fingerprint.platform,
-        osVersion: data.fingerprint.osVersion,
-        deviceModel: data.fingerprint.deviceModel,
-        screenResolution: data.fingerprint.screenResolution,
         timezone: data.fingerprint.timezone,
-        language: data.fingerprint.language,
       }),
     });
 

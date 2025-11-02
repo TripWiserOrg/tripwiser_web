@@ -1,70 +1,31 @@
 export interface DeviceFingerprint {
   platform: 'iOS' | 'Android' | 'Web';
-  osVersion: string;
-  deviceModel: string;
-  screenResolution: string;
   timezone: string;
-  language: string;
 }
 
 /**
- * Generates a device fingerprint from browser/device information
- * This should match the fingerprint generation logic in the mobile app
+ * Generates a simplified device fingerprint for attribution matching
+ * Uses only platform and timezone for better reliability across browser/app
+ * Backend automatically adds IP hash as the third matching component
  */
 export function generateDeviceFingerprint(): DeviceFingerprint {
   const userAgent = navigator.userAgent || '';
 
   // Detect platform
-  let platform: 'iOS' | 'Android' | 'Web' = 'Web';
-  if (/iPhone|iPad|iPod/.test(userAgent)) {
-    platform = 'iOS';
-  } else if (/Android/.test(userAgent)) {
-    platform = 'Android';
-  }
+  const platform = /iPad|iPhone|iPod/.test(userAgent)
+    ? 'iOS'
+    : /android/i.test(userAgent)
+    ? 'Android'
+    : 'Web';
 
-  // Extract OS version
-  let osVersion = 'Unknown';
-  if (platform === 'iOS') {
-    const match = userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
-    if (match) {
-      osVersion = `${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
-    }
-  } else if (platform === 'Android') {
-    const match = userAgent.match(/Android (\d+\.?\d*\.?\d*)/);
-    if (match) {
-      osVersion = match[1];
-    }
-  }
-
-  // Extract device model (approximation)
-  let deviceModel = 'Unknown';
-  if (platform === 'iOS') {
-    if (userAgent.includes('iPhone')) deviceModel = 'iPhone';
-    else if (userAgent.includes('iPad')) deviceModel = 'iPad';
-    else if (userAgent.includes('iPod')) deviceModel = 'iPod';
-  } else if (platform === 'Android') {
-    const match = userAgent.match(/Android.*;\s([^)]+)\)/);
-    if (match) {
-      deviceModel = match[1].trim();
-    }
-  }
-
-  // Screen resolution
-  const screenResolution = `${window.screen.width}x${window.screen.height}`;
-
-  // Timezone
+  // Get timezone
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
 
-  // Language
-  const language = navigator.language || (navigator as any).languages?.[0] || 'en-US';
+  console.log('📱 Device fingerprint:', { platform, timezone });
 
   return {
     platform,
-    osVersion,
-    deviceModel,
-    screenResolution,
     timezone,
-    language,
   };
 }
 
