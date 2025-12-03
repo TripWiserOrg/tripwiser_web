@@ -7,11 +7,17 @@ export interface DeviceFingerprint {
  * Generates a simplified device fingerprint for attribution matching
  * Uses only platform and timezone for better reliability across browser/app
  * Backend automatically adds IP hash as the third matching component
+ *
+ * IMPORTANT: Platform values are standardized across the system:
+ * - 'iOS' (exact case) - for iPad, iPhone, iPod
+ * - 'Android' (exact case) - for Android devices
+ * - 'Web' (exact case) - for desktop/other browsers
+ * DO NOT change these values - they must match mobile app values for fingerprint matching
  */
 export function generateDeviceFingerprint(): DeviceFingerprint {
   const userAgent = navigator.userAgent || '';
 
-  // Detect platform
+  // Detect platform - MUST use exact values: 'iOS', 'Android', 'Web'
   const platform = /iPad|iPhone|iPod/.test(userAgent)
     ? 'iOS'
     : /android/i.test(userAgent)
