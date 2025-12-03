@@ -28,13 +28,13 @@ export async function trackAttributionClick(
 ): Promise<TrackClickResponse> {
   try {
     // Validate input data
-    if (!data.fingerprint || !data.fingerprint.platform) {
-      throw new Error('Invalid fingerprint data - platform is required');
-    }
+    // if (!data.fingerprint || !data.fingerprint.platform) {
+    //   throw new Error('Invalid fingerprint data - platform is required');
+    // }
 
-    if (!data.affiliateType) {
-      throw new Error('Invalid affiliate type - type is required');
-    }
+    // if (!data.affiliateType) {
+    //   throw new Error('Invalid affiliate type - type is required');
+    // }
 
     const requestBody = {
       affiliateType: data.affiliateType,
