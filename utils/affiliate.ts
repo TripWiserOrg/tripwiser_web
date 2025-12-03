@@ -178,18 +178,11 @@ export function openAppWithFallback(deepLink: string): void {
 /**
  * Track affiliate click for analytics and attribution
  */
-export async function
+export async function 
 trackAffiliateClick(affiliateData: AffiliateData | null): Promise<void> {
   if (typeof window === 'undefined') return;
 
   if (affiliateData) {
-    // ✅ Validate affiliate type
-    const validTypes = ['elite', 'influencer'];
-    if (!validTypes.includes(affiliateData.type || '')) {
-      console.error('❌ Invalid affiliate type:', affiliateData.type);
-      return;
-    }
-
     // Google Analytics example
     if (typeof (window as any).gtag !== 'undefined') {
       (window as any).gtag('event', 'affiliate_click', {
@@ -216,7 +209,6 @@ trackAffiliateClick(affiliateData: AffiliateData | null): Promise<void> {
       const fingerprint = generateDeviceFingerprint();
       console.log('✅ Device fingerprint generated:', JSON.stringify(fingerprint, null, 2));
 
-      // Normalize to backend format
       const affiliateType = (affiliateData.type === 'elite' ? 'elite_gift' : 'influencer_referral') as 'elite_gift' | 'influencer_referral';
 
       const payload = {
@@ -229,11 +221,7 @@ trackAffiliateClick(affiliateData: AffiliateData | null): Promise<void> {
 
       const result = await trackAttributionClick(payload);
 
-      if (result.success) {
-        console.log('✅ Attribution sent successfully:', JSON.stringify(result, null, 2));
-      } else {
-        console.error('❌ Attribution tracking failed:', result.message);
-      }
+      console.log('✅ Attribution tracking result:', JSON.stringify(result, null, 2));
     } catch (error) {
       console.error('❌ Failed to send attribution tracking:', error);
       // Don't throw - we don't want to block the user flow if tracking fails

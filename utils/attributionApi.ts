@@ -27,45 +27,28 @@ export async function trackAttributionClick(
   data: TrackClickData
 ): Promise<TrackClickResponse> {
   try {
-    // Validate input data
-    // if (!data.fingerprint || !data.fingerprint.platform) {
-    //   throw new Error('Invalid fingerprint data - platform is required');
-    // }
-
-    // if (!data.affiliateType) {
-    //   throw new Error('Invalid affiliate type - type is required');
-    // }
-
-    const requestBody = {
-      affiliateType: data.affiliateType,
-      influencerId: data.influencerId,
-      linkId: data.linkId,
-      platform: data.fingerprint.platform,
-      timezone: data.fingerprint.timezone,
-    };
-
-    console.log('📡 Sending attribution request to:', `${API_URL}/attribution/click`);
-
     const response = await fetch(`${API_URL}/attribution/click`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        affiliateType: data.affiliateType,
+        influencerId: data.influencerId,
+        linkId: data.linkId,
+        platform: data.fingerprint.platform,
+        timezone: data.fingerprint.timezone,
+      }),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ Backend returned ${response.status}:`, errorText);
-      throw new Error(`Backend returned ${response.status}: ${errorText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
-    console.log('✅ Attribution API response:', result);
     return result;
   } catch (error) {
-    console.error('❌ Attribution send error:', error);
-    // Don't block user experience - still redirect to app
+    console.error('Error tracking attribution click:', error);
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to track click',
