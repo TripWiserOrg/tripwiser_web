@@ -1,7 +1,7 @@
 import { DeviceFingerprint } from './deviceFingerprint';
 
 // const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-const API_URL = "https://tripwiser-backend-dev.onrender.com/api"
+const API_URL = "https://tripwiser-backend.onrender.com/api"
 
 export interface TrackClickData {
   fingerprint: DeviceFingerprint;
